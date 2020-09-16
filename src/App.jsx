@@ -100,7 +100,6 @@ const drawXAxis = (ctx, count, step) => {
     let offset = 10;
     if (code.length > 1) {
       ctx.font = '12px sans-serif';
-      offset = 2;
     } else {
       ctx.font = '14px sans-serif';
     }
@@ -169,6 +168,28 @@ function App() {
     }
   }, [context, walls, rows, cols, currentWall]);
 
+  const renderInProgressWall = (x, y) => {
+      context.strokeStyle = 'red';
+      drawWall(context, [currentWall[currentWall.length - 1], [x, y]]);
+  }
+  React.useEffect(() => {
+    const saveWall = (e) => {
+      if (currentWall.length) {
+        if (currentWall.length > 1 && e.code === 'Enter') {
+          setWalls(s => [...s, currentWall]);
+          setCurrentWall([]);
+        } else if (e.code === 'Escape') {
+          setCurrentWall([]);
+        }
+      }
+    };
+
+    document.addEventListener('keydown', saveWall);
+    return () => {
+      document.removeEventListener('keydown', saveWall);
+    }
+  })
+  
   React.useEffect(() => {
     if (ref.current) {
       const renderCtx = ref.current.getContext('2d');
@@ -188,12 +209,16 @@ function App() {
 
       if (
         x >= gridSize &&
-        x <= gridSize * (cols + 1) &&
+        x <= gridSize * (Number(cols) + 1) &&
         y >= gridSize &&
-        y <= gridSize * (rows + 1)
+        y <= gridSize * (Number(rows) + 1)
       ) {
         renderCanvas();
-        addDot(context, x, y);
+        if (currentWall.length) {
+          renderInProgressWall(x, y)
+        } else {
+          addDot(context, x, y);
+        }
         dotRef.current = [x, y];
       }
     };
@@ -229,14 +254,9 @@ function App() {
       }}
     >
       <h1>OTFBM Draw Tool</h1>
-      <div
-        style={{
-          display: 'flex',
-        }}
-      >
         <div>
           <div style={{ minHeight: '30px' }}>
-            <div style={{maxWidth: '400px'}}>
+            <div style={{textAlign:'left', width: cols * gridSize, margin: '0 auto'}}>
               WallString:{' '}
               {currentWall.length || walls.length ? (
                 <>
@@ -275,7 +295,6 @@ function App() {
               </a>
             ) : null}
           </div>
-          <div style={{ display: 'flex' }}>
             <canvas
               id="canvas"
               ref={ref}
@@ -287,8 +306,9 @@ function App() {
             ></canvas>
             <div
               style={{
+                paddingBottom: '15px',
                 display: 'flex',
-                flexDirection: 'column',
+                justifyContent: 'center',
                 gap: '8px',
               }}
             >
@@ -315,7 +335,6 @@ function App() {
                 -s secret door
               </button>
             </div>
-          </div>
           <div
             style={{
               display: 'flex',
@@ -348,7 +367,6 @@ function App() {
           </div>
         </div>
       </div>
-    </div>
   );
 }
 
