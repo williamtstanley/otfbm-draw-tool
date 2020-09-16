@@ -1,4 +1,5 @@
 import * as React from 'react';
+import {Details, DetailItem} from './details';
 
 const drawLine = (ctx, start, end) => {
   const [x, y] = start;
@@ -363,9 +364,14 @@ function App() {
                 }}
               />
             </label>
-            Click to add walls
           </div>
         </div>
+      <Details>
+        <DetailItem>Click on the grid to add walls</DetailItem>
+        <DetailItem>Hit escape to cancel an in progress wall</DetailItem>
+        <DetailItem>Hit enter to save/confirm an in progress wall</DetailItem>
+        <DetailItem>Copy button will quick copies the generated wall string to your clipboard</DetailItem>
+      </Details>
       </div>
   );
 }
