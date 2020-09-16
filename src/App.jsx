@@ -118,8 +118,8 @@ const drawYAxis = (ctx, count, step) => {
 function App() {
   const ref = React.useRef();
   const gridSize = 20;
-  const [cols, setCols] = React.useState(20);
-  const [rows, setRows] = React.useState(15);
+  const [cols, setCols] = React.useState(26);
+  const [rows, setRows] = React.useState(14);
   const [door, setDoor] = React.useState('');
 
   const [context, setContext] = React.useState();
