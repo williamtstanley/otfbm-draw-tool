@@ -236,7 +236,7 @@ function App() {
       >
         <div>
           <div style={{ minHeight: '30px' }}>
-            <div>
+            <div style={{maxWidth: '400px'}}>
               WallString:{' '}
               {currentWall.length || walls.length ? (
                 <>
