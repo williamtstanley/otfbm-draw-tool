@@ -1,4 +1,4 @@
-import * as React from "react";
+import * as React from 'react';
 
 const drawLine = (ctx, start, end) => {
   const [x, y] = start;
@@ -12,7 +12,7 @@ const drawLine = (ctx, start, end) => {
 const drawGrid = (context, rows, cols) => {
   rows = Number(rows);
   cols = Number(cols);
-  context.strokeStyle = "grey";
+  context.strokeStyle = 'grey';
   // cols
   for (let i = 1; i <= cols + 1; i++) {
     drawLine(context, [20 * i, 20], [20 * i, (rows + 1) * 20]);
@@ -28,10 +28,10 @@ const clearCanvas = (ctx, width, height) => {
 
 const addDot = (context, x, y) => {
   context.beginPath();
-  context.fillStyle = "#ff7f50";
+  context.fillStyle = '#ff7f50';
   context.arc(x, y, 3, 0, Math.PI * 2, true);
   context.fill();
-  context.fillStyle = "#000";
+  context.fillStyle = '#000';
   context.closePath();
 };
 
@@ -47,14 +47,14 @@ const drawWall = (ctx, wall) => {
   }
   ctx.beginPath();
   ctx.moveTo(...start);
-  rest.forEach((section) => {
+  rest.forEach(section => {
     ctx.lineTo(...section);
   });
   ctx.stroke();
 };
 
 const drawWalls = (ctx, walls) => {
-  walls.forEach((wall) => {
+  walls.forEach(wall => {
     drawWall(ctx, wall);
   });
 };
@@ -62,30 +62,30 @@ const drawWalls = (ctx, walls) => {
 const renderWallString = (walls, step, xAxis) => {
   if (walls.length < 1) return;
   return walls
-    .map((wall) => {
+    .map(wall => {
       return wall.length
         ? `_${wall
-            .map((point) => {
+            .map(point => {
               const door = point[2];
-              const [_x, _y] = point.map((n) => {
+              const [_x, _y] = point.map(n => {
                 return (n - step) / step;
               });
               const x = xAxis[_x];
               const y = _y + 1;
-              return `${door ? door : ""}${x}${y}`;
+              return `${door ? door : ''}${x}${y}`;
             })
-            .join("")}`
-        : "";
+            .join('')}`
+        : '';
     })
-    .join("");
+    .join('');
 };
 
-const getColName = (n) => {
-  var ordA = "a".charCodeAt(0);
-  var ordZ = "z".charCodeAt(0);
+const getColName = n => {
+  var ordA = 'a'.charCodeAt(0);
+  var ordZ = 'z'.charCodeAt(0);
   var len = ordZ - ordA + 1;
 
-  var s = "";
+  var s = '';
   while (n >= 0) {
     s = String.fromCharCode((n % len) + ordA) + s;
     n = Math.floor(n / len) - 1;
@@ -94,22 +94,22 @@ const getColName = (n) => {
 };
 
 const drawXAxis = (ctx, count, step) => {
-  ctx.textAlign = "center";
+  ctx.textAlign = 'center';
   for (let i = 0; i < count; i++) {
     const code = getColName(i);
     let offset = 10;
     if (code.length > 1) {
-      ctx.font = "12px sans-serif";
+      ctx.font = '12px sans-serif';
       offset = 2;
     } else {
-      ctx.font = "14px sans-serif";
+      ctx.font = '14px sans-serif';
     }
     ctx.fillText(code, step + offset + step * i, 15);
   }
 };
 
 const drawYAxis = (ctx, count, step) => {
-  ctx.textAlign = "center";
+  ctx.textAlign = 'center';
   for (let i = 0; i < count; i++) {
     ctx.fillText(i + 1, 7, step + 15 + step * i);
   }
@@ -120,7 +120,7 @@ function App() {
   const gridSize = 20;
   const [cols, setCols] = React.useState(20);
   const [rows, setRows] = React.useState(15);
-  const [door, setDoor] = React.useState("");
+  const [door, setDoor] = React.useState('');
 
   const [context, setContext] = React.useState();
   const dotRef = React.useRef();
@@ -128,18 +128,15 @@ function App() {
   const [currentWall, setCurrentWall] = React.useState([]);
 
   const handleClick = React.useCallback(
-    (e) => {
+    e => {
       if (currentWall.length) {
-        setCurrentWall((s) => [
-          ...s,
-          [...dotRef.current, door].filter(Boolean)
-        ]);
-        setDoor("");
+        setCurrentWall(s => [...s, [...dotRef.current, door].filter(Boolean)]);
+        setDoor('');
       } else {
-        setCurrentWall((s) => [...s, dotRef.current]);
+        setCurrentWall(s => [...s, dotRef.current]);
       }
     },
-    [setCurrentWall, door, currentWall]
+    [setCurrentWall, door, currentWall],
   );
 
   const renderCanvas = React.useCallback(() => {
@@ -147,41 +144,41 @@ function App() {
     ref.current.width = cols * gridSize + 40;
     clearCanvas(context, ref.current.height, ref.current.width);
     context.strokeRect(gridSize, gridSize, cols * gridSize, rows * gridSize);
-    context.font = "14px sans-serif";
+    context.font = '14px sans-serif';
     drawXAxis(context, cols, gridSize);
     drawYAxis(context, rows, gridSize);
     drawGrid(context, rows, cols);
     if (currentWall.length) {
-      context.strokeStyle = "red";
+      context.strokeStyle = 'red';
       drawWall(context, currentWall);
 
       if (currentWall.length > 3) {
         // triangle 4 clicks to close
-        let first = currentWall[0].join("");
-        let last = currentWall[currentWall.length - 1].join("");
+        let first = currentWall[0].join('');
+        let last = currentWall[currentWall.length - 1].join('');
         if (first === last) {
           // closed the loop
-          setWalls((s) => [...s, currentWall]);
+          setWalls(s => [...s, currentWall]);
           setCurrentWall([]);
         }
       }
     }
     if (walls.length) {
-      context.strokeStyle = "black";
+      context.strokeStyle = 'black';
       drawWalls(context, walls);
     }
   }, [context, walls, rows, cols, currentWall]);
 
   React.useEffect(() => {
     if (ref.current) {
-      const renderCtx = ref.current.getContext("2d");
+      const renderCtx = ref.current.getContext('2d');
 
       if (renderCtx && !context) {
         setContext(renderCtx);
       }
     }
 
-    const handleMouseOver = (e) => {
+    const handleMouseOver = e => {
       let canvasOffsetLeft = ref.current.offsetLeft;
       let canvasOffsetTop = ref.current.offsetTop;
       const _x = e.clientX - canvasOffsetLeft;
@@ -189,7 +186,12 @@ function App() {
 
       const [x, y] = getNearestPoint(_x, _y);
 
-      if (x >= gridSize && y >= gridSize) {
+      if (
+        x >= gridSize &&
+        x <= gridSize * (cols + 1) &&
+        y >= gridSize &&
+        y <= gridSize * (rows + 1)
+      ) {
         renderCanvas();
         addDot(context, x, y);
         dotRef.current = [x, y];
@@ -197,61 +199,61 @@ function App() {
     };
 
     if (context) {
-      ref.current.addEventListener("mousemove", handleMouseOver);
-      ref.current.addEventListener("click", handleClick);
+      ref.current.addEventListener('mousemove', handleMouseOver);
+      ref.current.addEventListener('click', handleClick);
       renderCanvas();
     }
     const canvas = ref.current;
     return () => {
-      canvas.removeEventListener("mousemove", handleMouseOver);
-      canvas.removeEventListener("click", handleClick);
+      canvas.removeEventListener('mousemove', handleMouseOver);
+      canvas.removeEventListener('click', handleClick);
     };
   });
-  const getButtonStyle = (n) => {
+  const getButtonStyle = n => {
     return {
-      backgroundColor: n === door ? "lightgreen" : ""
+      backgroundColor: n === door ? 'lightgreen' : '',
     };
   };
 
-  const toggleDoor = (name) => {
-    return () => setDoor((s) => (s === name ? "" : name));
+  const toggleDoor = name => {
+    return () => setDoor(s => (s === name ? '' : name));
   };
   const xAxis = [...Array(Number(cols))].map((_, i) => getColName(i));
   return (
     <div
       style={{
-        textAlign: "center",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center"
+        textAlign: 'center',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
       }}
     >
       <h1>OTFBM Draw Tool</h1>
       <div
         style={{
-          display: "flex"
+          display: 'flex',
         }}
       >
         <div>
-          <div style={{ minHeight: "30px" }}>
+          <div style={{ minHeight: '30px' }}>
             <div>
-              WallString:{" "}
+              WallString:{' '}
               {currentWall.length || walls.length ? (
                 <>
-                  {renderWallString([...walls, currentWall], gridSize, xAxis)}{" "}
+                  {renderWallString([...walls, currentWall], gridSize, xAxis)}{' '}
                   <button
-                    onClick={(e) => {
-                      var textField = document.createElement("textarea");
+                    onClick={e => {
+                      var textField = document.createElement('textarea');
                       textField.innerText = renderWallString(
                         [...walls, currentWall],
                         gridSize,
-                        xAxis
+                        xAxis,
                       );
                       document.body.appendChild(textField);
                       textField.select();
-                      document.execCommand("copy");
+                      document.execCommand('copy');
                       textField.remove();
-                      alert("wall string copied!");
+                      alert('wall string copied!');
                     }}
                   >
                     Copy
@@ -266,60 +268,60 @@ function App() {
                 href={`https://otfbm.io/${cols}x${rows}/${renderWallString(
                   walls,
                   gridSize,
-                  xAxis
+                  xAxis,
                 )}`}
               >
                 Open in OTFBM
               </a>
             ) : null}
           </div>
-          <div style={{ display: "flex" }}>
+          <div style={{ display: 'flex' }}>
             <canvas
               id="canvas"
               ref={ref}
               width={500}
               height={500}
               style={{
-                marginTop: 10
+                marginTop: 10,
               }}
             ></canvas>
             <div
               style={{
-                display: "flex",
-                flexDirection: "column",
-                gap: "8px"
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '8px',
               }}
             >
               <button
-                style={{ maxWidth: "100px" }}
+                style={{ maxWidth: '100px' }}
                 onClick={() => {
                   setWalls([]);
                   setCurrentWall([]);
-                  setDoor("");
+                  setDoor('');
                 }}
               >
                 Reset
               </button>
-              <button style={getButtonStyle("-o")} onClick={toggleDoor("-o")}>
+              <button style={getButtonStyle('-o')} onClick={toggleDoor('-o')}>
                 -o open door
               </button>
-              <button style={getButtonStyle("-d")} onClick={toggleDoor("-d")}>
+              <button style={getButtonStyle('-d')} onClick={toggleDoor('-d')}>
                 -d closed door
               </button>
-              <button style={getButtonStyle("-b")} onClick={toggleDoor("-b")}>
+              <button style={getButtonStyle('-b')} onClick={toggleDoor('-b')}>
                 -b double door
               </button>
-              <button style={getButtonStyle("-s")} onClick={toggleDoor("-s")}>
+              <button style={getButtonStyle('-s')} onClick={toggleDoor('-s')}>
                 -s secret door
               </button>
             </div>
           </div>
           <div
             style={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "5px",
-              padding: "8px"
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '5px',
+              padding: '8px',
             }}
           >
             <label>
@@ -327,7 +329,7 @@ function App() {
               <input
                 type="number"
                 value={cols}
-                onChange={(e) => {
+                onChange={e => {
                   setCols(e.target.value);
                 }}
               />
@@ -337,7 +339,7 @@ function App() {
               <input
                 type="number"
                 value={rows}
-                onChange={(e) => {
+                onChange={e => {
                   setRows(e.target.value);
                 }}
               />
