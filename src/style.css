@@ -5,6 +5,7 @@ body {
 }
 
 .canvas-container {
+  position: relative;
   background: white;
   margin-bottom: 16px;
   border-radius: 4px;
@@ -13,4 +14,21 @@ body {
 .link {
   color: white;
   font-size: 18px;
+}
+
+#canvas,
+#image-canvas {
+  left: 0px;
+  top: 0px;
+  position: absolute;
+}
+
+#canvas {
+  z-index: 10;
+  background-color: transparent;
+}
+
+#image-canvas {
+  z-index: 1;
+  background-color: transparent;
 }

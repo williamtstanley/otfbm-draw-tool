@@ -7,7 +7,7 @@ const getNearestPoint = (x, y, gridSize) => {
   return [round(x, gridSize), round(y, gridSize)];
 };
 
-const renderWallString = (walls, step, xAxis) => {
+const renderWallString = (walls, step, xAxis, image) => {
   if (walls.length < 1) return;
   const doorKeys = {
     'secret-door': '-s',
@@ -15,7 +15,7 @@ const renderWallString = (walls, step, xAxis) => {
     'double-door': '-b',
     'open-door': '-o',
   };
-  return walls
+  const wallString = walls
     .map(wall => {
       return wall.length
         ? `_${wall
@@ -27,16 +27,21 @@ const renderWallString = (walls, step, xAxis) => {
         : '';
     })
     .join('');
+
+  return image ? wallString + `?bg=${image}` : wallString
 };
 
 function App() {
-  const ref = React.useRef();
+  const gridRef = React.useRef();
+  const imageRef = React.useRef();
   const gridSize = 40;
   const [cols, setCols] = React.useState(26);
   const [rows, setRows] = React.useState(14);
   const [door, setDoor] = React.useState('');
+  const [image, setImage] = React.useState('');
   const dotRef = React.useRef();
   const [context, setContext] = React.useState();
+  const [imageContext, setImageContext] = React.useState();
   const [walls, setWalls] = React.useState([]);
   const [currentWall, setCurrentWall] = React.useState([]);
 
@@ -59,9 +64,9 @@ function App() {
   );
 
   const renderCanvas = React.useCallback(() => {
-    ref.current.height = rows * gridSize + 80;
-    ref.current.width = cols * gridSize + 80;
-    gridCanvas.clearCanvas(ref.current.height, ref.current.width);
+    gridRef.current.height = rows * gridSize + 80;
+    gridRef.current.width = cols * gridSize + 80;
+    gridCanvas.clearCanvas(gridRef.current.height, gridRef.current.width);
     context.strokeRect(gridSize, gridSize, cols * gridSize, rows * gridSize);
     context.font = '14px sans-serif';
     gridCanvas.drawXAxis();
@@ -140,8 +145,30 @@ function App() {
   });
 
   React.useEffect(() => {
-    if (ref.current) {
-      const renderCtx = ref.current.getContext('2d');
+    if (imageRef.current) {
+
+
+      const renderCtx = imageRef.current.getContext('2d');
+
+      if (renderCtx && !imageContext) {
+        setImageContext(renderCtx);
+      }
+      
+      function drawImageActualSize() {
+        imageContext.drawImage(this, gridSize, gridSize, gridSize * cols, gridSize * rows);
+      }
+      if (image) {
+        const imageEl = new Image(); // Using optional size for image
+        imageEl.onload = drawImageActualSize; // Draw when image has loaded
+        imageEl.src = image;
+      }
+    }
+
+  }, [image, imageContext, setImageContext])
+
+  React.useEffect(() => {
+    if (gridRef.current) {
+      const renderCtx = gridRef.current.getContext('2d');
 
       if (renderCtx && !context) {
         setContext(renderCtx);
@@ -149,8 +176,10 @@ function App() {
     }
 
     const handleMouseOver = e => {
-      let canvasOffsetLeft = ref.current.offsetLeft;
-      let canvasOffsetTop = ref.current.offsetTop;
+      const rect = gridRef.current.getBoundingClientRect();
+
+      let canvasOffsetLeft = rect.x;
+      let canvasOffsetTop = rect.y;
       let _x = e.clientX - canvasOffsetLeft;
       let _y = e.clientY - canvasOffsetTop;
 
@@ -174,12 +203,12 @@ function App() {
     };
 
     if (context) {
-      ref.current.addEventListener('mouseleave', mouseOut);
-      ref.current.addEventListener('mousemove', handleMouseOver);
-      ref.current.addEventListener('click', handleClick);
+      gridRef.current.addEventListener('mouseleave', mouseOut);
+      gridRef.current.addEventListener('mousemove', handleMouseOver);
+      gridRef.current.addEventListener('click', handleClick);
       renderCanvas();
     }
-    const canvas = ref.current;
+    const canvas = gridRef.current;
     return () => {
       canvas.removeEventListener('mousemove', handleMouseOver);
       canvas.removeEventListener('click', handleClick);
@@ -209,22 +238,37 @@ function App() {
               className="link"
               target="_blank"
               rel="noopener noreferrer"
-              href={`https://otfbm.io/${cols}x${rows}/${renderWallString(
+              href={`https://otfbm.io/${cols}x${rows}/@dc60/${renderWallString(
                 walls,
                 gridSize,
                 xAxis,
+                image
               )}`}
             >
               Open in OTFBM
             </a>
           ) : null}
         </div>
-        <div className="canvas-container">
+        <div 
+          style={{
+            width:gridSize * cols + gridSize * 2,
+            height:gridSize * rows + gridSize * 2
+          }}
+          className="canvas-container">
           <canvas
             id="canvas"
-            ref={ref}
-            width={500}
-            height={500}
+            ref={gridRef}
+            width={gridSize * cols + gridSize * 2}
+            height={gridSize * rows + gridSize * 2}
+            style={{
+              marginTop: 10,
+            }}
+          ></canvas>
+          <canvas
+            id="image-canvas"
+            ref={imageRef}
+            width={gridSize * cols + gridSize * 2}
+            height={gridSize * rows + gridSize * 2}
             style={{
               marginTop: 10,
             }}
@@ -283,7 +327,7 @@ function App() {
             type="number"
             value={cols}
             onChange={e => {
-              setCols(e.target.value);
+              setCols(Number(e.target.value));
             }}
           />
           <label>Rows:</label>
@@ -291,7 +335,15 @@ function App() {
             type="number"
             value={rows}
             onChange={e => {
-              setRows(e.target.value);
+              setRows(Number(e.target.value));
+            }}
+          />
+          <label>ImageUrl:</label>
+          <input
+            type="text"
+            value={image}
+            onChange={e => {
+              setImage(e.target.value);
             }}
           />
         </div>
@@ -306,7 +358,7 @@ function App() {
           WallString:{' '}
           {currentWall.length || walls.length ? (
             <>
-              {renderWallString([...walls, currentWall], gridSize, xAxis)}{' '}
+              {renderWallString([...walls, currentWall], gridSize, xAxis, image)}{' '}
               <button
                 onClick={e => {
                   var textField = document.createElement('textarea');
