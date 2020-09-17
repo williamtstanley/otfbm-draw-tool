@@ -1,0 +1,16 @@
+html,
+body {
+  color: white;
+  background: #242424;
+}
+
+.canvas-container {
+  background: white;
+  margin-bottom: 16px;
+  border-radius: 4px;
+}
+
+.link {
+  color: white;
+  font-size: 18px;
+}

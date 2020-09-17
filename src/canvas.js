@@ -45,7 +45,7 @@ export default function Canvas(ctx, gridSize, cols, rows) {
     drawYAxis() {
       ctx.textAlign = 'center';
       for (let i = 0; i < rows; i++) {
-        ctx.fillText(i + 1, 7, gridSize + 15 + gridSize * i);
+        ctx.fillText(i + 1, gridSize / 2, gridSize + 25 + gridSize * i);
       }
     },
     addDot(x, y) {

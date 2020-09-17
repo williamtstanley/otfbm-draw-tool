@@ -43,6 +43,9 @@ function App() {
   const gridCanvas = Canvas(context, gridSize, Number(cols), Number(rows));
   const xAxis = [...Array(Number(cols))].map((_, i) => getColName(i));
 
+  const toggleDoor = name => {
+    return () => setDoor(s => (s === name ? '' : name));
+  };
   const handleClick = React.useCallback(
     e => {
       if (currentWall.length) {
@@ -91,7 +94,7 @@ function App() {
   };
 
   React.useEffect(() => {
-    const saveWall = e => {
+    const handleKeyDown = e => {
       if (currentWall.length) {
         if (currentWall.length > 1 && e.code === 'Enter') {
           setWalls(s => [...s, currentWall]);
@@ -99,12 +102,38 @@ function App() {
         } else if (e.code === 'Escape') {
           setCurrentWall([]);
         }
-      }
+      } 
+        switch (e.keyCode) {
+          case 79: {
+            // o
+            toggleDoor('open-door')()
+            break;
+          }
+          case 83: {
+            // s
+            toggleDoor('secret-door')()
+            break;
+          }
+          case 68: {
+            // d
+            toggleDoor('door')()
+            break;
+          }
+          case 66: {
+            // b
+            toggleDoor('double-door')()
+            break;
+          }
+          default: {
+            return
+          }
+        }
+
     };
 
-    document.addEventListener('keydown', saveWall);
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.removeEventListener('keydown', saveWall);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   });
 
@@ -166,10 +195,6 @@ function App() {
     };
   };
 
-  const toggleDoor = name => {
-    return () => setDoor(s => (s === name ? '' : name));
-  };
-
   return (
     <div
       style={{
@@ -215,6 +240,7 @@ function App() {
           </div>
           {walls.length ? (
             <a
+              className="link"
               target="_blank"
               rel="noopener noreferrer"
               href={`https://otfbm.io/${cols}x${rows}/${renderWallString(
@@ -227,6 +253,7 @@ function App() {
             </a>
           ) : null}
         </div>
+        <div className="canvas-container">
         <canvas
           id="canvas"
           ref={ref}
@@ -236,7 +263,8 @@ function App() {
             marginTop: 10,
           }}
         ></canvas>
-        <div
+        </div>
+          <div
           style={{
             paddingBottom: '15px',
             display: 'flex',
@@ -254,16 +282,16 @@ function App() {
           >
             Reset
           </button>
-          <button style={getButtonStyle('-o')} onClick={toggleDoor('open-door')}>
+          <button style={getButtonStyle('open-door')} onClick={toggleDoor('open-door')}>
             -o open door
           </button>
-          <button style={getButtonStyle('-d')} onClick={toggleDoor('door')}>
+          <button style={getButtonStyle('door')} onClick={toggleDoor('door')}>
             -d closed door
           </button>
-          <button style={getButtonStyle('-b')} onClick={toggleDoor('double-door')}>
+          <button style={getButtonStyle('double-door')} onClick={toggleDoor('double-door')}>
             -b double door
           </button>
-          <button style={getButtonStyle('-s')} onClick={toggleDoor('secret-door')}>
+          <button style={getButtonStyle('secret-door')} onClick={toggleDoor('secret-door')}>
             -s secret door
           </button>
         </div>
@@ -304,6 +332,9 @@ function App() {
         <DetailItem>
           Copy button will quick copies the generated wall string to your
           clipboard
+        </DetailItem>
+        <DetailItem>
+          Door hotkeys (o, d, b, s)
         </DetailItem>
       </Details>
     </div>
