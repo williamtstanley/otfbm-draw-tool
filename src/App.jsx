@@ -296,6 +296,7 @@ function App() {
               setWalls([]);
               setCurrentWall([]);
               setDoor('');
+              setImage('');
             }}
           >
             Reset
