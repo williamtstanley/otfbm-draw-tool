@@ -45,7 +45,7 @@ function App() {
   const [walls, setWalls] = React.useState([]);
   const [currentWall, setCurrentWall] = React.useState([]);
 
-  const gridCanvas = Canvas(context, gridSize, Number(cols), Number(rows));
+  const gridCanvas = Canvas(context, gridSize, Number(cols), Number(rows), image);
   const xAxis = [...Array(Number(cols))].map((_, i) => getColName(i));
 
   const toggleDoor = name => {
@@ -363,7 +363,7 @@ function App() {
             justifyContent: 'space-between',
           }}
         >
-          WallString:{' '}
+          urlparams:{' '}
           {currentWall.length || walls.length ? (
             <>
               {renderWallString([...walls, currentWall], gridSize, xAxis, image)}{' '}

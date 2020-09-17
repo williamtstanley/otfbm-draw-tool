@@ -13,7 +13,7 @@ export const getColName = n => {
   return s.toUpperCase();
 };
 
-export default function Canvas(ctx, gridSize, cols, rows) {
+export default function Canvas(ctx, gridSize, cols, rows, bg) {
   function drawLine(start, end) {
     const [x, y] = start;
     const [x1, y1] = end;
@@ -24,7 +24,7 @@ export default function Canvas(ctx, gridSize, cols, rows) {
   }
 
   function drawWall(wall) {
-    const line = new Line([...wall], '#07031a', '#f4f6ff');
+    const line = new Line([...wall], bg ? '#ffffff' : '#07031a', '#f4f6ff');
     line.draw(ctx, gridSize);
   }
 
