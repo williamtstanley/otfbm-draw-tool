@@ -20,8 +20,8 @@ const renderWallString = (walls, step, xAxis) => {
       return wall.length
         ? `_${wall
             .map(({ x, y, icon }) => {
-              const xLetter = xAxis[x];
-              return `${icon ? doorKeys[icon] : ''}${xLetter}${y + 1}`;
+              const xLetter = xAxis[x - 1];
+              return `${icon ? doorKeys[icon] : ''}${xLetter}${y}`;
             })
             .join('')}`
         : '';
@@ -295,38 +295,38 @@ function App() {
             }}
           />
         </div>
-          <div
-            style={{
-              padding: '16px',
-              textAlign: 'left',
-              display: 'flex',
-              justifyContent: 'space-between',
-            }}
-          >
-            WallString:{' '}
-            {currentWall.length || walls.length ? (
-              <>
-                {renderWallString([...walls, currentWall], gridSize, xAxis)}{' '}
-                <button
-                  onClick={e => {
-                    var textField = document.createElement('textarea');
-                    textField.innerText = renderWallString(
-                      [...walls, currentWall],
-                      gridSize,
-                      xAxis,
-                    );
-                    document.body.appendChild(textField);
-                    textField.select();
-                    document.execCommand('copy');
-                    textField.remove();
-                    alert('wall string copied!');
-                  }}
-                >
-                  Copy
-                </button>
-              </>
-            ) : null}
-          </div>
+        <div
+          style={{
+            padding: '16px',
+            textAlign: 'left',
+            display: 'flex',
+            justifyContent: 'space-between',
+          }}
+        >
+          WallString:{' '}
+          {currentWall.length || walls.length ? (
+            <>
+              {renderWallString([...walls, currentWall], gridSize, xAxis)}{' '}
+              <button
+                onClick={e => {
+                  var textField = document.createElement('textarea');
+                  textField.innerText = renderWallString(
+                    [...walls, currentWall],
+                    gridSize,
+                    xAxis,
+                  );
+                  document.body.appendChild(textField);
+                  textField.select();
+                  document.execCommand('copy');
+                  textField.remove();
+                  alert('wall string copied!');
+                }}
+              >
+                Copy
+              </button>
+            </>
+          ) : null}
+        </div>
       </div>
       <Details>
         <DetailItem>Click on the grid to add walls</DetailItem>
