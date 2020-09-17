@@ -3,24 +3,25 @@ import { Details, DetailItem } from './details';
 import Canvas, { getColName } from './canvas';
 
 const round = (n, step) => Math.round(n / step) * step;
-const getNearestPoint = (x, y) => {
-  return [round(x, 20), round(y, 20)];
+const getNearestPoint = (x, y, gridSize) => {
+  return [round(x, gridSize), round(y, gridSize)];
 };
 
 const renderWallString = (walls, step, xAxis) => {
   if (walls.length < 1) return;
+  const doorKeys = {
+    'secret-door': '-s',
+    'door': '-d',
+    'double-door': '-b',
+    'open-door': '-o'
+  }
   return walls
     .map(wall => {
       return wall.length
         ? `_${wall
-            .map(point => {
-              const door = point[2];
-              const [_x, _y] = point.map(n => {
-                return (n - step) / step;
-              });
-              const x = xAxis[_x];
-              const y = _y + 1;
-              return `${door ? door : ''}${x}${y}`;
+            .map(({x, y, icon}) => {
+              const xLetter = xAxis[x];
+              return `${icon ? doorKeys[icon] : ''}${xLetter}${y+1}`;
             })
             .join('')}`
         : '';
@@ -30,7 +31,7 @@ const renderWallString = (walls, step, xAxis) => {
 
 function App() {
   const ref = React.useRef();
-  const gridSize = 20;
+  const gridSize = 40;
   const [cols, setCols] = React.useState(26);
   const [rows, setRows] = React.useState(14);
   const [door, setDoor] = React.useState('');
@@ -45,33 +46,33 @@ function App() {
   const handleClick = React.useCallback(
     e => {
       if (currentWall.length) {
-        setCurrentWall(s => [...s, [...dotRef.current, door].filter(Boolean)]);
+        setCurrentWall(s => [...s, dotRef.current]);
         setDoor('');
       } else {
         setCurrentWall(s => [...s, dotRef.current]);
       }
     },
-    [setCurrentWall, door, currentWall],
+    [setCurrentWall, currentWall],
   );
 
   const renderCanvas = React.useCallback(() => {
-    ref.current.height = rows * gridSize + 40;
-    ref.current.width = cols * gridSize + 40;
+    ref.current.height = (rows * gridSize) + 80;
+    ref.current.width = (cols * gridSize) + 80;
     gridCanvas.clearCanvas(ref.current.height, ref.current.width);
     context.strokeRect(gridSize, gridSize, cols * gridSize, rows * gridSize);
     context.font = '14px sans-serif';
-    gridCanvas.drawXAxis(cols, gridSize);
-    gridCanvas.drawYAxis(rows, gridSize);
-    gridCanvas.drawGrid(rows, cols);
+    gridCanvas.drawXAxis();
+    gridCanvas.drawYAxis();
+    gridCanvas.drawGrid();
     if (currentWall.length) {
       context.strokeStyle = 'red';
       gridCanvas.drawWall(currentWall);
 
       if (currentWall.length > 3) {
         // triangle 4 clicks to close
-        let first = currentWall[0].slice(0, 2).join('');
-        let last = currentWall[currentWall.length - 1].slice(0, 2).join('');
-        if (first === last) {
+        let {x: x1, y: y1} = currentWall[0];
+        let {x: x2, y: y2} = currentWall[currentWall.length - 1];
+        if (x1 === x2 && y1 === y2) {
           // closed the loop
           setWalls(s => [...s, currentWall]);
           setCurrentWall([]);
@@ -86,7 +87,7 @@ function App() {
 
   const renderInProgressWall = (x, y) => {
     context.strokeStyle = 'red';
-    gridCanvas.drawWall([currentWall[currentWall.length - 1], [x, y]]);
+    gridCanvas.drawWall([currentWall[currentWall.length - 1], {x, y, icon: door}]);
   };
 
   React.useEffect(() => {
@@ -119,16 +120,18 @@ function App() {
     const handleMouseOver = e => {
       let canvasOffsetLeft = ref.current.offsetLeft;
       let canvasOffsetTop = ref.current.offsetTop;
-      const _x = e.clientX - canvasOffsetLeft;
-      const _y = e.clientY - canvasOffsetTop;
+      let _x = e.clientX - canvasOffsetLeft;
+      let _y = e.clientY - canvasOffsetTop;
 
-      const [x, y] = getNearestPoint(_x, _y);
+      [_x, _y] = getNearestPoint(_x, _y, gridSize);
 
+      const x = _x / gridSize;
+      const y = _y / gridSize;
       if (
-        x >= gridSize &&
-        x <= gridSize * (Number(cols) + 1) &&
-        y >= gridSize &&
-        y <= gridSize * (Number(rows) + 1)
+        x >= 0 &&
+        x <= (Number(cols) + 1) &&
+        y >= 0 &&
+        y <= (Number(rows) + 1)
       ) {
         renderCanvas();
         if (currentWall.length) {
@@ -136,7 +139,7 @@ function App() {
         } else {
           gridCanvas.addDot(x, y);
         }
-        dotRef.current = [x, y];
+        dotRef.current = {x, y, icon: door};
       }
     };
 
@@ -251,16 +254,16 @@ function App() {
           >
             Reset
           </button>
-          <button style={getButtonStyle('-o')} onClick={toggleDoor('-o')}>
+          <button style={getButtonStyle('-o')} onClick={toggleDoor('open-door')}>
             -o open door
           </button>
-          <button style={getButtonStyle('-d')} onClick={toggleDoor('-d')}>
+          <button style={getButtonStyle('-d')} onClick={toggleDoor('door')}>
             -d closed door
           </button>
-          <button style={getButtonStyle('-b')} onClick={toggleDoor('-b')}>
+          <button style={getButtonStyle('-b')} onClick={toggleDoor('double-door')}>
             -b double door
           </button>
-          <button style={getButtonStyle('-s')} onClick={toggleDoor('-s')}>
+          <button style={getButtonStyle('-s')} onClick={toggleDoor('secret-door')}>
             -s secret door
           </button>
         </div>
