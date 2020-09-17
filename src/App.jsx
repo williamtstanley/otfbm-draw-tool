@@ -204,37 +204,6 @@ function App() {
       <h1>OTFBM Draw Tool</h1>
       <div>
         <div style={{ minHeight: '30px' }}>
-          <div
-            style={{
-              textAlign: 'left',
-              width: cols * gridSize,
-              margin: '0 auto',
-            }}
-          >
-            WallString:{' '}
-            {currentWall.length || walls.length ? (
-              <>
-                {renderWallString([...walls, currentWall], gridSize, xAxis)}{' '}
-                <button
-                  onClick={e => {
-                    var textField = document.createElement('textarea');
-                    textField.innerText = renderWallString(
-                      [...walls, currentWall],
-                      gridSize,
-                      xAxis,
-                    );
-                    document.body.appendChild(textField);
-                    textField.select();
-                    document.execCommand('copy');
-                    textField.remove();
-                    alert('wall string copied!');
-                  }}
-                >
-                  Copy
-                </button>
-              </>
-            ) : null}
-          </div>
           {walls.length ? (
             <a
               className="link"
@@ -326,6 +295,38 @@ function App() {
             }}
           />
         </div>
+          <div
+            style={{
+              padding: '16px',
+              textAlign: 'left',
+              display: 'flex',
+              justifyContent: 'space-between',
+            }}
+          >
+            WallString:{' '}
+            {currentWall.length || walls.length ? (
+              <>
+                {renderWallString([...walls, currentWall], gridSize, xAxis)}{' '}
+                <button
+                  onClick={e => {
+                    var textField = document.createElement('textarea');
+                    textField.innerText = renderWallString(
+                      [...walls, currentWall],
+                      gridSize,
+                      xAxis,
+                    );
+                    document.body.appendChild(textField);
+                    textField.select();
+                    document.execCommand('copy');
+                    textField.remove();
+                    alert('wall string copied!');
+                  }}
+                >
+                  Copy
+                </button>
+              </>
+            ) : null}
+          </div>
       </div>
       <Details>
         <DetailItem>Click on the grid to add walls</DetailItem>
