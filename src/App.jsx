@@ -11,17 +11,17 @@ const renderWallString = (walls, step, xAxis) => {
   if (walls.length < 1) return;
   const doorKeys = {
     'secret-door': '-s',
-    'door': '-d',
+    door: '-d',
     'double-door': '-b',
-    'open-door': '-o'
-  }
+    'open-door': '-o',
+  };
   return walls
     .map(wall => {
       return wall.length
         ? `_${wall
-            .map(({x, y, icon}) => {
+            .map(({ x, y, icon }) => {
               const xLetter = xAxis[x];
-              return `${icon ? doorKeys[icon] : ''}${xLetter}${y+1}`;
+              return `${icon ? doorKeys[icon] : ''}${xLetter}${y + 1}`;
             })
             .join('')}`
         : '';
@@ -59,8 +59,8 @@ function App() {
   );
 
   const renderCanvas = React.useCallback(() => {
-    ref.current.height = (rows * gridSize) + 80;
-    ref.current.width = (cols * gridSize) + 80;
+    ref.current.height = rows * gridSize + 80;
+    ref.current.width = cols * gridSize + 80;
     gridCanvas.clearCanvas(ref.current.height, ref.current.width);
     context.strokeRect(gridSize, gridSize, cols * gridSize, rows * gridSize);
     context.font = '14px sans-serif';
@@ -73,8 +73,8 @@ function App() {
 
       if (currentWall.length > 3) {
         // triangle 4 clicks to close
-        let {x: x1, y: y1} = currentWall[0];
-        let {x: x2, y: y2} = currentWall[currentWall.length - 1];
+        let { x: x1, y: y1 } = currentWall[0];
+        let { x: x2, y: y2 } = currentWall[currentWall.length - 1];
         if (x1 === x2 && y1 === y2) {
           // closed the loop
           setWalls(s => [...s, currentWall]);
@@ -90,7 +90,10 @@ function App() {
 
   const renderInProgressWall = (x, y) => {
     context.strokeStyle = 'red';
-    gridCanvas.drawWall([currentWall[currentWall.length - 1], {x, y, icon: door}]);
+    gridCanvas.drawWall([
+      currentWall[currentWall.length - 1],
+      { x, y, icon: door },
+    ]);
   };
 
   React.useEffect(() => {
@@ -102,33 +105,32 @@ function App() {
         } else if (e.code === 'Escape') {
           setCurrentWall([]);
         }
-      } 
-        switch (e.keyCode) {
-          case 79: {
-            // o
-            toggleDoor('open-door')()
-            break;
-          }
-          case 83: {
-            // s
-            toggleDoor('secret-door')()
-            break;
-          }
-          case 68: {
-            // d
-            toggleDoor('door')()
-            break;
-          }
-          case 66: {
-            // b
-            toggleDoor('double-door')()
-            break;
-          }
-          default: {
-            return
-          }
+      }
+      switch (e.keyCode) {
+        case 79: {
+          // o
+          toggleDoor('open-door')();
+          break;
         }
-
+        case 83: {
+          // s
+          toggleDoor('secret-door')();
+          break;
+        }
+        case 68: {
+          // d
+          toggleDoor('door')();
+          break;
+        }
+        case 66: {
+          // b
+          toggleDoor('double-door')();
+          break;
+        }
+        default: {
+          return;
+        }
+      }
     };
 
     document.addEventListener('keydown', handleKeyDown);
@@ -156,19 +158,14 @@ function App() {
 
       const x = _x / gridSize;
       const y = _y / gridSize;
-      if (
-        x >= 0 &&
-        x <= (Number(cols) + 1) &&
-        y >= 0 &&
-        y <= (Number(rows) + 1)
-      ) {
+      if (x >= 0 && x <= Number(cols) + 1 && y >= 0 && y <= Number(rows) + 1) {
         renderCanvas();
         if (currentWall.length) {
           renderInProgressWall(x, y);
         } else {
           gridCanvas.addDot(x, y);
         }
-        dotRef.current = {x, y, icon: door};
+        dotRef.current = { x, y, icon: door };
       }
     };
 
@@ -254,17 +251,17 @@ function App() {
           ) : null}
         </div>
         <div className="canvas-container">
-        <canvas
-          id="canvas"
-          ref={ref}
-          width={500}
-          height={500}
-          style={{
-            marginTop: 10,
-          }}
-        ></canvas>
+          <canvas
+            id="canvas"
+            ref={ref}
+            width={500}
+            height={500}
+            style={{
+              marginTop: 10,
+            }}
+          ></canvas>
         </div>
-          <div
+        <div
           style={{
             paddingBottom: '15px',
             display: 'flex',
@@ -282,47 +279,52 @@ function App() {
           >
             Reset
           </button>
-          <button style={getButtonStyle('open-door')} onClick={toggleDoor('open-door')}>
+          <button
+            style={getButtonStyle('open-door')}
+            onClick={toggleDoor('open-door')}
+          >
             -o open door
           </button>
           <button style={getButtonStyle('door')} onClick={toggleDoor('door')}>
             -d closed door
           </button>
-          <button style={getButtonStyle('double-door')} onClick={toggleDoor('double-door')}>
+          <button
+            style={getButtonStyle('double-door')}
+            onClick={toggleDoor('double-door')}
+          >
             -b double door
           </button>
-          <button style={getButtonStyle('secret-door')} onClick={toggleDoor('secret-door')}>
+          <button
+            style={getButtonStyle('secret-door')}
+            onClick={toggleDoor('secret-door')}
+          >
             -s secret door
           </button>
         </div>
         <div
           style={{
             display: 'flex',
-            flexDirection: 'column',
-            gap: '5px',
+            justifyContent: 'center',
+            gap: '8px',
             padding: '8px',
           }}
         >
-          <label>
-            Cols:
-            <input
-              type="number"
-              value={cols}
-              onChange={e => {
-                setCols(e.target.value);
-              }}
-            />
-          </label>
-          <label>
-            Rows:
-            <input
-              type="number"
-              value={rows}
-              onChange={e => {
-                setRows(e.target.value);
-              }}
-            />
-          </label>
+          <label>Cols:</label>
+          <input
+            type="number"
+            value={cols}
+            onChange={e => {
+              setCols(e.target.value);
+            }}
+          />
+          <label>Rows:</label>
+          <input
+            type="number"
+            value={rows}
+            onChange={e => {
+              setRows(e.target.value);
+            }}
+          />
         </div>
       </div>
       <Details>
@@ -333,9 +335,7 @@ function App() {
           Copy button will quick copies the generated wall string to your
           clipboard
         </DetailItem>
-        <DetailItem>
-          Door hotkeys (o, d, b, s)
-        </DetailItem>
+        <DetailItem>Door hotkeys (o, d, b, s)</DetailItem>
       </Details>
     </div>
   );
