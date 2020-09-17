@@ -154,13 +154,21 @@ function App() {
         setImageContext(renderCtx);
       }
       
-      function drawImageActualSize() {
-        imageContext.drawImage(this, gridSize, gridSize, gridSize * cols, gridSize * rows);
-      }
-      if (image) {
-        const imageEl = new Image(); // Using optional size for image
-        imageEl.onload = drawImageActualSize; // Draw when image has loaded
-        imageEl.src = image;
+      if (imageContext) {
+        function drawImageActualSize() {
+          imageContext.drawImage(this, gridSize, gridSize, gridSize * cols, gridSize * rows);
+        }
+        function clearImage() {
+          imageContext.clearRect(gridSize, gridSize, gridSize * cols, gridSize * rows);
+        }
+        if (image) {
+          const imageEl = new Image(); // Using optional size for image
+          imageEl.onload = drawImageActualSize; // Draw when image has loaded
+          imageEl.onerror = clearImage;
+          imageEl.src = image;
+        } else {
+          clearImage()
+        }
       }
     }
 
