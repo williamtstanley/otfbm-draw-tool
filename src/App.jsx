@@ -142,7 +142,7 @@ function App() {
               target="_blank"
               rel="noopener noreferrer"
               href={`https://otfbm.io/${cols}x${rows}${
-                image ? '/@dc60' : ''
+                image ? '/@c60' : ''
               }/${renderWallString(walls, gridSize, xAxis, image)}`}
             >
               Open in OTFBM
