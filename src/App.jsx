@@ -10,9 +10,11 @@ import {
   Img as Image,
 } from './components/canvas';
 import {ToggleViewModeBtn} from './components/ToggleViewModeBtn';
+import {Button} from './components/Button';
 import { getNearestPoint, getColName, renderWallString } from './util';
 
 const gridSize = 40;
+// const zoom = 1; // start zooming out after X amount of size increase
 function App() {
   const canvasRef = React.useRef();
   const imageRef = React.useRef();
@@ -104,12 +106,6 @@ function App() {
     setPointer({});
   };
 
-  const getButtonStyle = (n) => {
-    return {
-      backgroundColor: n === icon ? 'lightgreen' : '',
-    };
-  };
-
   const handleMouseMove = React.useCallback((e) => {
     const rect = canvasRef.current.getBoundingClientRect();
     let canvasOffsetLeft = rect.x;
@@ -125,6 +121,8 @@ function App() {
       setPointer({ x, y, icon });
     }
   }, [setPointer, icon, gridSize, cols, rows]);
+
+  const isActive = React.useCallback((n) => {return n === icon}, [icon])
 
   return (
     <div
@@ -200,8 +198,7 @@ function App() {
             gap: '8px',
           }}
         >
-          <button
-            style={{ maxWidth: '100px' }}
+          <Button
             onClick={() => {
               setWalls([]);
               setCurrentWall([]);
@@ -211,28 +208,31 @@ function App() {
             }}
           >
             Reset
-          </button>
-          <button
-            style={getButtonStyle('open-door')}
+          </Button>
+          <Button
+            active={isActive('open-door')}
             onClick={toggleDoor('open-door')}
           >
             -o open door
-          </button>
-          <button style={getButtonStyle('door')} onClick={toggleDoor('door')}>
+          </Button>
+          <Button  onClick={toggleDoor('door')}
+
+            active={isActive('door')}
+          >
             -d closed door
-          </button>
-          <button
-            style={getButtonStyle('double-door')}
+          </Button>
+          <Button
+            active={isActive('double-door')}
             onClick={toggleDoor('double-door')}
           >
             -b double door
-          </button>
-          <button
-            style={getButtonStyle('secret-door')}
+          </Button>
+          <Button
+            active={isActive('secret-door')}
             onClick={toggleDoor('secret-door')}
           >
             -s secret door
-          </button>
+          </Button>
         </div>
         <div
           style={{
@@ -286,7 +286,7 @@ function App() {
                 xAxis,
                 image,
               )}{' '}
-              <button
+              <Button
                 onClick={(e) => {
                   var textField = document.createElement('textarea');
                   textField.innerText = renderWallString(
@@ -302,7 +302,7 @@ function App() {
                 }}
               >
                 Copy
-              </button>
+              </Button>
             </>
           ) : null}
         </div>

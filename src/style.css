@@ -34,7 +34,8 @@ body {
 
 .details-container {
   position: absolute;
-  left: 5px;
+  left: 20px;
+  top: 20px;
   padding: 16px;
   background: var(--codeBackgroundColor);
   color: var(--textColor);
@@ -80,7 +81,7 @@ body {
   background-color: transparent;
 }
 
-button {
+.button-base {
   border: none;
   padding: 8px 16px;
   border-radius: 5px;
@@ -89,11 +90,22 @@ button {
   color: var(--textColor);
   border: 1px solid var(--highlightColor);
 }
+.button-base.active {
+  background: var(--highlightColor);
+  color: #ffffff;
+}
 
 .toggle-mode-button {
   position: absolute;
-  right: 10px;
-  top: 10px;
+  right: 45px;
+  top: 30px;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: transparent;
+  font-size: 28px;
+  outline: none;
+  color: var(--textColor);
 }
 
 label {
