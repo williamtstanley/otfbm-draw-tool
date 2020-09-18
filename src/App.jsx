@@ -313,7 +313,7 @@ function App() {
         <DetailItem>Hit escape to cancel an in progress wall</DetailItem>
         <DetailItem>Hit enter to save/confirm an in progress wall</DetailItem>
         <DetailItem>
-          Copy button will quick copies the generated wall string to your
+          Copy button quick copies the generated paramstring to your
           clipboard
         </DetailItem>
         <DetailItem>Door hotkeys (o, d, b, s)</DetailItem>
