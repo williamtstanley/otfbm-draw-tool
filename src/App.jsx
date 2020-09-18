@@ -86,12 +86,15 @@ function App() {
         if (x1 === x2 && y1 === y2) {
           setWalls((s) => [...s, [...currentWall, pointer]]);
           setCurrentWall([]);
+          setIcon('');
+          setPointer(({x, y}) => ({x, y, icon: ''}))
           return;
         }
       }
 
       setCurrentWall((s) => [...s, pointer]);
       setIcon('');
+      setPointer(({x, y}) => ({x, y, icon: ''}))
     },
     [setCurrentWall, currentWall, pointer],
   );
