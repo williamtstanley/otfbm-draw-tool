@@ -10,7 +10,11 @@ export const Line = ({ points, gridSize, bg }) => {
   React.useEffect(() => {
     function draw(ctx) {
       if (points.length) {
-        const line = new LineRenderer([...points], bg ? '#FFFFFF' : '#07031a', '#f4f6ff');
+        const line = new LineRenderer(
+          [...points],
+          bg ? '#FFFFFF' : '#07031a',
+          '#f4f6ff',
+        );
         line.draw(ctx, gridSize);
       }
     }

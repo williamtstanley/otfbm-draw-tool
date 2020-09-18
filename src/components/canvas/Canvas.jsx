@@ -41,11 +41,11 @@ export const Canvas = React.forwardRef((props, ref) => {
       }
     }
   }, [ctx, setCtx]);
-  const {children, ...rest} = props;
+  const { children, ...rest } = props;
 
   return (
     <CanvasContext.Provider value={{ registerNode, removeNode }}>
-      <canvas ref={ref} {...props}/>
+      <canvas ref={ref} {...props} />
     </CanvasContext.Provider>
   );
 });

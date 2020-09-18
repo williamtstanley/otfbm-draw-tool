@@ -9,8 +9,8 @@ import {
   YAxis,
   Img as Image,
 } from './components/canvas';
-import {ToggleViewModeBtn} from './components/ToggleViewModeBtn';
-import {Button} from './components/Button';
+import { ToggleViewModeBtn } from './components/ToggleViewModeBtn';
+import { Button } from './components/Button';
 import { getNearestPoint, getColName, renderWallString } from './util';
 
 const gridSize = 40;
@@ -90,14 +90,14 @@ function App() {
           setWalls((s) => [...s, [...currentWall, pointer]]);
           setCurrentWall([]);
           setIcon('');
-          setPointer(({x, y}) => ({x, y, icon: ''}))
+          setPointer(({ x, y }) => ({ x, y, icon: '' }));
           return;
         }
       }
 
       setCurrentWall((s) => [...s, pointer]);
       setIcon('');
-      setPointer(({x, y}) => ({x, y, icon: ''}))
+      setPointer(({ x, y }) => ({ x, y, icon: '' }));
     },
     [setCurrentWall, currentWall, pointer],
   );
@@ -106,23 +106,31 @@ function App() {
     setPointer({});
   };
 
-  const handleMouseMove = React.useCallback((e) => {
-    const rect = canvasRef.current.getBoundingClientRect();
-    let canvasOffsetLeft = rect.x;
-    let canvasOffsetTop = rect.y;
-    let _x = e.clientX - canvasOffsetLeft;
-    let _y = e.clientY - canvasOffsetTop;
+  const handleMouseMove = React.useCallback(
+    (e) => {
+      const rect = canvasRef.current.getBoundingClientRect();
+      let canvasOffsetLeft = rect.x;
+      let canvasOffsetTop = rect.y;
+      let _x = e.clientX - canvasOffsetLeft;
+      let _y = e.clientY - canvasOffsetTop;
 
-    [_x, _y] = getNearestPoint(_x, _y, gridSize);
+      [_x, _y] = getNearestPoint(_x, _y, gridSize);
 
-    const x = _x / gridSize;
-    const y = _y / gridSize;
-    if (x > 0 && x <= Number(cols) + 1 && y > 0 && y <= Number(rows) + 1) {
-      setPointer({ x, y, icon });
-    }
-  }, [setPointer, icon, gridSize, cols, rows]);
+      const x = _x / gridSize;
+      const y = _y / gridSize;
+      if (x > 0 && x <= Number(cols) + 1 && y > 0 && y <= Number(rows) + 1) {
+        setPointer({ x, y, icon });
+      }
+    },
+    [setPointer, icon, gridSize, cols, rows],
+  );
 
-  const isActive = React.useCallback((n) => {return n === icon}, [icon])
+  const isActive = React.useCallback(
+    (n) => {
+      return n === icon;
+    },
+    [icon],
+  );
 
   return (
     <div
@@ -133,7 +141,7 @@ function App() {
         alignItems: 'center',
       }}
     >
-      <ToggleViewModeBtn/>
+      <ToggleViewModeBtn />
       <h1>OTFBM Draw Tool</h1>
       <div>
         <div style={{ minHeight: '30px' }}>
@@ -176,9 +184,7 @@ function App() {
               bg={image}
             />
             {walls.map((points, i) => (
-              <Line key={i} points={points} gridSize={gridSize} 
-                bg={image}
-              />
+              <Line key={i} points={points} gridSize={gridSize} bg={image} />
             ))}
           </Canvas>
           <Canvas
@@ -215,10 +221,7 @@ function App() {
           >
             -o open door
           </Button>
-          <Button  onClick={toggleDoor('door')}
-
-            active={isActive('door')}
-          >
+          <Button onClick={toggleDoor('door')} active={isActive('door')}>
             -d closed door
           </Button>
           <Button
@@ -312,8 +315,7 @@ function App() {
         <DetailItem>Hit escape to cancel an in progress wall</DetailItem>
         <DetailItem>Hit enter to save/confirm an in progress wall</DetailItem>
         <DetailItem>
-          Copy button quick copies the generated paramstring to your
-          clipboard
+          Copy button quick copies the generated paramstring to your clipboard
         </DetailItem>
         <DetailItem>Door hotkeys (o, d, b, s)</DetailItem>
       </Details>

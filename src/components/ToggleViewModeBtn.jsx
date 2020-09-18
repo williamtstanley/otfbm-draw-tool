@@ -36,9 +36,9 @@ function MoonIcon(props) {
 const modeMachine = (mode) => {
   return {
     light: 'dark',
-    dark: 'light'
-  }[mode]
-}
+    dark: 'light',
+  }[mode];
+};
 
 const usePersistentState = (key, initialState = '') => {
   let storedValue;
@@ -59,7 +59,7 @@ const usePersistentState = (key, initialState = '') => {
       setState(nextValue);
       cb && cb();
     },
-    [state, key]
+    [state, key],
   );
 
   return [state, wrappedSetState];
@@ -70,16 +70,25 @@ export const ToggleViewModeBtn = () => {
   const Icon = {
     dark: SunIcon,
     light: MoonIcon,
-  }[mode]
+  }[mode];
 
-  const toggleMode = () => setMode(s => modeMachine(s))
+  const toggleMode = () => setMode((s) => modeMachine(s));
 
   React.useEffect(() => {
     const removeMode = modeMachine(mode);
-    document.body.classList.add(mode)
-    document.body.classList.remove(removeMode)
-  }, [mode])
+    document.body.classList.add(mode);
+    document.body.classList.remove(removeMode);
+  }, [mode]);
 
-
-  return <button className={classnames("toggle-mode-button", {light: mode === 'light', dark: mode === 'dark'})} onClick={toggleMode}>{<Icon/>}</button>
+  return (
+    <button
+      className={classnames('toggle-mode-button', {
+        light: mode === 'light',
+        dark: mode === 'dark',
+      })}
+      onClick={toggleMode}
+    >
+      {<Icon />}
+    </button>
+  );
 };
