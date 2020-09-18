@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Details, DetailItem } from './details';
-import Canvas, { getColName } from './canvas';
+import canvasFactory, { getColName } from './canvas';
 
 const round = (n, step) => Math.round(n / step) * step;
 const getNearestPoint = (x, y, gridSize) => {
@@ -45,7 +45,7 @@ function App() {
   const [walls, setWalls] = React.useState([]);
   const [currentWall, setCurrentWall] = React.useState([]);
 
-  const gridCanvas = Canvas(context, gridSize, Number(cols), Number(rows), image);
+  const gridCanvas = canvasFactory(context, gridSize, Number(cols), Number(rows), image);
   const xAxis = [...Array(Number(cols))].map((_, i) => getColName(i));
 
   const toggleDoor = name => {
@@ -246,7 +246,7 @@ function App() {
               className="link"
               target="_blank"
               rel="noopener noreferrer"
-              href={`https://otfbm.io/${cols}x${rows}/@dc60/${renderWallString(
+              href={`https://otfbm.io/${cols}x${rows}${image ? '/@dc60' : ''}/${renderWallString(
                 walls,
                 gridSize,
                 xAxis,
