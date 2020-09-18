@@ -2,7 +2,6 @@ export function ID() {
   return '_' + Math.random().toString(36).substr(2, 9);
 }
 
-
 export const round = (n, step) => Math.round(n / step) * step;
 export const getNearestPoint = (x, y, gridSize) => {
   return [round(x, gridSize), round(y, gridSize)];
@@ -44,4 +43,3 @@ export const renderWallString = (walls, step, xAxis, image) => {
 
   return image ? wallString + `?bg=${image}` : wallString;
 };
-

@@ -1,62 +1,29 @@
 import * as React from 'react';
 import { Details, DetailItem } from './components/Details';
-import { Canvas, Grid, Dot, Line, XAxis, YAxis } from './components/canvas';
-import {getNearestPoint, getColName, renderWallString} from './util'
-
+import {
+  Canvas,
+  Grid,
+  Dot,
+  Line,
+  XAxis,
+  YAxis,
+  Img as Image,
+} from './components/canvas';
+import { getNearestPoint, getColName, renderWallString } from './util';
 
 const gridSize = 40;
 function App() {
   const canvasRef = React.useRef();
   const imageRef = React.useRef();
-  const [pointer, setPointer] = React.useState({x: 0, y: 0, icon: ''})
+  const [pointer, setPointer] = React.useState({ x: 0, y: 0, icon: '' });
   const [cols, setCols] = React.useState(26);
   const [rows, setRows] = React.useState(14);
   const [icon, setIcon] = React.useState('');
   const [image, setImage] = React.useState('');
-  const [context, setContext] = React.useState();
-  const [imageContext, setImageContext] = React.useState();
   const [walls, setWalls] = React.useState([]);
   const [currentWall, setCurrentWall] = React.useState([]);
 
   const xAxis = [...Array(Number(cols))].map((_, i) => getColName(i));
-
-  React.useEffect(() => {
-    if (imageRef.current) {
-      const renderCtx = imageRef.current.getContext('2d');
-
-      if (renderCtx && !imageContext) {
-        setImageContext(renderCtx);
-      }
-
-      if (imageContext) {
-        function drawImageActualSize() {
-          imageContext.drawImage(
-            this,
-            gridSize,
-            gridSize,
-            gridSize * cols,
-            gridSize * rows,
-          );
-        }
-        function clearImage() {
-          imageContext.clearRect(
-            gridSize,
-            gridSize,
-            gridSize * cols,
-            gridSize * rows,
-          );
-        }
-        if (image) {
-          const imageEl = new Image(); // Using optional size for image
-          imageEl.onload = drawImageActualSize; // Draw when image has loaded
-          imageEl.onerror = clearImage;
-          imageEl.src = image;
-        } else {
-          clearImage();
-        }
-      }
-    }
-  }, [image, imageContext, setImageContext]);
 
   React.useEffect(() => {
     const handleKeyDown = (e) => {
@@ -102,7 +69,12 @@ function App() {
   });
 
   const toggleDoor = (name) => {
-    return () => setIcon((s) => (s === name ? '' : name));
+    return () => {
+      setIcon((s) => (s === name ? '' : name));
+      if (currentWall.length) {
+        setPointer((s) => ({ ...s, icon: name }));
+      }
+    };
   };
 
   const handleClick = React.useCallback(
@@ -110,23 +82,22 @@ function App() {
       if (currentWall.length > 3) {
         // triangle 4 clicks to close
         let { x: x1, y: y1 } = currentWall[0];
-        let { x: x2, y: y2 } = currentWall[currentWall.length - 1];
+        let { x: x2, y: y2 } = pointer;
         if (x1 === x2 && y1 === y2) {
-          // closed the loop
-          setWalls(s => [...s, currentWall]);
+          setWalls((s) => [...s, [...currentWall, pointer]]);
           setCurrentWall([]);
+          return;
         }
-      } else {
-        setCurrentWall((s) => [...s, pointer]);
       }
-      
+
+      setCurrentWall((s) => [...s, pointer]);
       setIcon('');
     },
     [setCurrentWall, currentWall, pointer],
   );
 
   const handleMouseOut = () => {
-    setPointer({})
+    setPointer({});
   };
 
   const getButtonStyle = (n) => {
@@ -147,9 +118,9 @@ function App() {
     const x = _x / gridSize;
     const y = _y / gridSize;
     if (x > 0 && x <= Number(cols) + 1 && y > 0 && y <= Number(rows) + 1) {
-      setPointer({x, y, icon: currentWall.length ? icon: ''});
+      setPointer({ x, y, icon: currentWall.length ? icon : '' });
     }
-  }
+  };
   return (
     <div
       style={{
@@ -182,28 +153,31 @@ function App() {
           }}
           className="canvas-container"
         >
-      <Canvas
-        id="canvas"
-        ref={canvasRef}
-        width={gridSize * cols + gridSize * 2}
-        height={gridSize * rows + gridSize * 2}
-        style={{
-          marginTop: 10,
-        }}
-        onMouseMove={handleMouseMove}
-        onClick={handleClick}
-        onMouseOut={handleMouseOut}
-      >
-        <XAxis cols={cols} gridSize={gridSize}/>
-        <YAxis rows={rows} gridSize={gridSize}/>
-        <Grid rows={rows} cols={cols} gridSize={gridSize} />
-        <Dot x={pointer.x} y={pointer.y} gridSize={gridSize} />
-        <Line points={pointer.x ? [...currentWall, pointer] : currentWall} gridSize={gridSize}/>
-        {
-          walls.map((points, i) => <Line key={i} points={points} gridSize={gridSize}/>)
-        }
-      </Canvas>
-          <canvas
+          <Canvas
+            id="canvas"
+            ref={canvasRef}
+            width={gridSize * cols + gridSize * 2}
+            height={gridSize * rows + gridSize * 2}
+            style={{
+              marginTop: 10,
+            }}
+            onMouseMove={handleMouseMove}
+            onClick={handleClick}
+            onMouseOut={handleMouseOut}
+          >
+            <XAxis cols={cols} gridSize={gridSize} />
+            <YAxis rows={rows} gridSize={gridSize} />
+            <Grid rows={rows} cols={cols} gridSize={gridSize} />
+            <Dot x={pointer.x} y={pointer.y} gridSize={gridSize} />
+            <Line
+              points={pointer.x ? [...currentWall, pointer] : currentWall}
+              gridSize={gridSize}
+            />
+            {walls.map((points, i) => (
+              <Line key={i} points={points} gridSize={gridSize} />
+            ))}
+          </Canvas>
+          <Canvas
             id="image-canvas"
             ref={imageRef}
             width={gridSize * cols + gridSize * 2}
@@ -211,7 +185,9 @@ function App() {
             style={{
               marginTop: 10,
             }}
-          ></canvas>
+          >
+            <Image image={image} rows={rows} cols={cols} gridSize={gridSize} />
+          </Canvas>
         </div>
         <div
           style={{

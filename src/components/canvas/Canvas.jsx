@@ -15,9 +15,9 @@ export const Canvas = React.forwardRef(({ children, ...props }, ref) => {
   };
 
   const removeNode = (id) => {
-    delete nodes.current[id]
+    delete nodes.current[id];
     drawFn();
-  }
+  };
 
   const drawFn = () => {
     if (ctx) {
