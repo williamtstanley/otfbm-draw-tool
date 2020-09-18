@@ -1,6 +1,13 @@
-# New Project
+# On the fly Battlemaps canvas draw tool
 
 > ✨ Bootstrapped with Create Snowpack App (CSA).
+
+## Drawing maps the clicky way!
+
+I found drawing map walls with coords and flags for doors a touch slow for my tastes. Canvas grid maps to the same system as https://otfbm.io and uses the same wall rendering code. This means that you can quickly throw up some walls and then click the provided link to open and use the map as in image in all its glory!
+
+Also there is some work started for importing maps in avrae bot with a provided otfbm url. Basically fast click to create and then import into your discord battles! "Soon"™
+
 
 ## Available Scripts
 
@@ -20,10 +27,11 @@ See the section about running tests for more information.
 ### npm run build
 
 Builds a static copy of your site to the `build/` folder.
-Your app is ready to be deployed!
 
 **For the best production performance:** Add a build bundler plugin like "@snowpack/plugin-webpack" or "@snowpack/plugin-parcel" to your `snowpack.config.json` config file.
 
-### Q: What about Eject?
+### npm run deploy
 
-No eject needed! Snowpack guarantees zero lock-in, and CSA strives for the same.
+Builds a static copy of your site to the `build/` folder and runs WorkBox to generate a service worker.
+Your app is ready to be deployed!
+
