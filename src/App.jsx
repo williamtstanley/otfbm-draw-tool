@@ -221,9 +221,11 @@ function App() {
           >
             -o open door
           </Button>
-          <Button 
+          <Button
             name="door"
-            onClick={toggleDoor('door')} active={isActive('door')}>
+            onClick={toggleDoor('door')}
+            active={isActive('door')}
+          >
             -d closed door
           </Button>
           <Button
