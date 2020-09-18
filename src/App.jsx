@@ -109,7 +109,7 @@ function App() {
     };
   };
 
-  const handleMouseMove = (e) => {
+  const handleMouseMove = React.useCallback((e) => {
     const rect = canvasRef.current.getBoundingClientRect();
     let canvasOffsetLeft = rect.x;
     let canvasOffsetTop = rect.y;
@@ -121,9 +121,10 @@ function App() {
     const x = _x / gridSize;
     const y = _y / gridSize;
     if (x > 0 && x <= Number(cols) + 1 && y > 0 && y <= Number(rows) + 1) {
-      setPointer({ x, y, icon: currentWall.length ? icon : '' });
+      setPointer({ x, y, icon });
     }
-  };
+  }, [setPointer, icon, gridSize, cols, rows]);
+
   return (
     <div
       style={{
@@ -161,9 +162,6 @@ function App() {
             ref={canvasRef}
             width={gridSize * cols + gridSize * 2}
             height={gridSize * rows + gridSize * 2}
-            style={{
-              marginTop: 10,
-            }}
             onMouseMove={handleMouseMove}
             onClick={handleClick}
             onMouseOut={handleMouseOut}
@@ -173,7 +171,7 @@ function App() {
             <Grid rows={rows} cols={cols} gridSize={gridSize} />
             <Dot x={pointer.x} y={pointer.y} gridSize={gridSize} />
             <Line
-              points={pointer.x ? [...currentWall, pointer] : currentWall}
+              points={[...currentWall, pointer]}
               gridSize={gridSize}
               bg={image}
             />
@@ -188,9 +186,6 @@ function App() {
             ref={imageRef}
             width={gridSize * cols + gridSize * 2}
             height={gridSize * rows + gridSize * 2}
-            style={{
-              marginTop: 10,
-            }}
           >
             <Image image={image} rows={rows} cols={cols} gridSize={gridSize} />
           </Canvas>

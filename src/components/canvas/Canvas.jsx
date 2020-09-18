@@ -5,7 +5,7 @@ const CanvasContext = React.createContext({
   scheduleRender: () => {},
 });
 
-export const Canvas = React.forwardRef(({ children, ...props }, ref) => {
+export const Canvas = React.forwardRef((props, ref) => {
   const [ctx, setCtx] = React.useState();
   const nodes = React.useRef({});
 
@@ -41,12 +41,11 @@ export const Canvas = React.forwardRef(({ children, ...props }, ref) => {
       }
     }
   }, [ctx, setCtx]);
+  const {children, ...rest} = props;
 
   return (
     <CanvasContext.Provider value={{ registerNode, removeNode }}>
-      <canvas ref={ref} {...props}>
-        {children}
-      </canvas>
+      <canvas ref={ref} {...props}/>
     </CanvasContext.Provider>
   );
 });
