@@ -1,18 +1,64 @@
-html,
+:root {
+  --siteFont: PT Sans;
+  --defaultTheme: dark;
+  --codeFontFamily: Roboto Mono, Monaco, courier, monospace;
+  --bodyFontSize: 17px;
+  --accent: #42b983;
+  --toogleBackground: #ffffff;
+  --background: #091a28;
+  --textColor: #b4b4b4;
+  --codeTextColor: #ffffff;
+  --codeBackgroundColor: #0e2233;
+  --borderColor: #0d2538;
+  --blockQuoteColour: #858585;
+  --highlightColor: #d22778;
+  --sidebarSublink: #b4b4b4;
+  --codeTypeColor: #ffffff;
+  --blockQuoteColor: #858585;
+  --shadow: 5px 5px 5px rgba(255, 255, 255, 0.2);
+}
+
 body {
-  color: white;
-  background: #242424;
+  color: var(--textColor);
+  background: var(--background);
+  height: 100%;
+}
+
+.light {
+  --background: #ffffff;
+  --textColor: #34495e;
+  --codeBackgroundColor: #f8f8f8;
+  --shadow: 5px 5px 5px rgba(0, 0, 0, 0.4);
+  --highlightColor: var(--textColor);
+}
+
+.details-container {
+  position: absolute;
+  left: 5px;
+  padding: 16px;
+  background: var(--codeBackgroundColor);
+  color: var(--textColor);
+  width: 300px;
+  border-radius: 4px;
+  box-shadow: var(--shadow);
+  text-align: left;
+  list-style: none;
+  margin: 0;
+}
+
+.details-container__list-item {
+  padding: 4px 0;
 }
 
 .canvas-container {
   position: relative;
-  background: white;
+  background: var(--codeTypeColor);
   margin-bottom: 16px;
   border-radius: 4px;
 }
 
 .link {
-  color: white;
+  color: var(--textColor);
   font-size: 18px;
 }
 
@@ -39,6 +85,15 @@ button {
   padding: 8px 16px;
   border-radius: 5px;
   text-transform: uppercase;
+  background: var(--codeBackgroundColor);
+  color: var(--textColor);
+  border: 1px solid var(--highlightColor);
+}
+
+.toggle-mode-button {
+  position: absolute;
+  right: 10px;
+  top: 10px;
 }
 
 label {

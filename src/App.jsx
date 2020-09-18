@@ -9,6 +9,7 @@ import {
   YAxis,
   Img as Image,
 } from './components/canvas';
+import {ToggleViewModeBtn} from './components/ToggleViewModeBtn';
 import { getNearestPoint, getColName, renderWallString } from './util';
 
 const gridSize = 40;
@@ -134,6 +135,7 @@ function App() {
         alignItems: 'center',
       }}
     >
+      <ToggleViewModeBtn/>
       <h1>OTFBM Draw Tool</h1>
       <div>
         <div style={{ minHeight: '30px' }}>
@@ -236,6 +238,7 @@ function App() {
           style={{
             display: 'flex',
             justifyContent: 'center',
+            alignItems: 'center',
             gap: '8px',
             padding: '8px',
           }}
@@ -271,6 +274,7 @@ function App() {
             textAlign: 'left',
             display: 'flex',
             justifyContent: 'space-between',
+            alignItems: 'center',
           }}
         >
           urlparams:{' '}
