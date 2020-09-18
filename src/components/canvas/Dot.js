@@ -1,9 +1,9 @@
 import * as React from 'react';
-import {useCanvas} from './Canvas';
+import { useCanvas } from './Canvas';
 
-export const Dot = ({x, y, gridSize}) => {
+export const Dot = ({ x, y, gridSize }) => {
   const ctx = useCanvas();
- 
+
   function drawDot() {
     ctx.beginPath();
     ctx.fillStyle = '#ff7f50';
@@ -21,6 +21,6 @@ export const Dot = ({x, y, gridSize}) => {
       ctx.restore();
     }
   });
-  
+
   return null;
-}
+};

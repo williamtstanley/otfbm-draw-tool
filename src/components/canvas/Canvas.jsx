@@ -2,7 +2,7 @@ import * as React from 'react';
 
 const CanvasContext = React.createContext(null);
 
-export const Canvas = React.forwardRef(({children, ...props}, ref) => {
+export const Canvas = React.forwardRef(({ children, ...props }, ref) => {
   const [ctx, setCtx] = React.useState();
 
   React.useEffect(() => {
@@ -15,14 +15,20 @@ export const Canvas = React.forwardRef(({children, ...props}, ref) => {
       }
     }
     if (ctx) {
-      ctx.clearRect(0, 0, props.width, props.height)
+      ctx.clearRect(0, 0, props.width, props.height);
     }
-  }, [ctx, setCtx])
+  }, [ctx, setCtx]);
 
-  return <CanvasContext.Provider value={ctx}><canvas ref={ref} {...props}>{children}</canvas></CanvasContext.Provider>
-})
+  return (
+    <CanvasContext.Provider value={ctx}>
+      <canvas ref={ref} {...props}>
+        {children}
+      </canvas>
+    </CanvasContext.Provider>
+  );
+});
 
 export const useCanvas = () => {
   const ctx = React.useContext(CanvasContext);
-  return ctx
-}
+  return ctx;
+};

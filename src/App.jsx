@@ -28,29 +28,131 @@ const renderWallString = (walls, step, xAxis, image) => {
     })
     .join('');
 
-  return image ? wallString + `?bg=${image}` : wallString
+  return image ? wallString + `?bg=${image}` : wallString;
 };
 
+const gridSize = 40;
 function App() {
   const gridRef = React.useRef();
+  const dotRef = React.useRef();
   const imageRef = React.useRef();
-  const gridSize = 40;
   const [cols, setCols] = React.useState(26);
   const [rows, setRows] = React.useState(14);
   const [door, setDoor] = React.useState('');
   const [image, setImage] = React.useState('');
-  const dotRef = React.useRef();
   const [context, setContext] = React.useState();
   const [imageContext, setImageContext] = React.useState();
   const [walls, setWalls] = React.useState([]);
   const [currentWall, setCurrentWall] = React.useState([]);
 
-  const gridCanvas = canvasFactory(context, gridSize, Number(cols), Number(rows), image);
+  const gridCanvas = canvasFactory(
+    context,
+    gridSize,
+    Number(cols),
+    Number(rows),
+    image,
+  );
   const xAxis = [...Array(Number(cols))].map((_, i) => getColName(i));
+
+  React.useEffect(() => {
+    if (gridRef.current) {
+      const renderCtx = gridRef.current.getContext('2d');
+
+      if (renderCtx && !context) {
+        setContext(renderCtx);
+      }
+    }
+
+    if (context) {
+      renderCanvas();
+    }
+  });
+
+  React.useEffect(() => {
+    if (imageRef.current) {
+      const renderCtx = imageRef.current.getContext('2d');
+
+      if (renderCtx && !imageContext) {
+        setImageContext(renderCtx);
+      }
+
+      if (imageContext) {
+        function drawImageActualSize() {
+          imageContext.drawImage(
+            this,
+            gridSize,
+            gridSize,
+            gridSize * cols,
+            gridSize * rows,
+          );
+        }
+        function clearImage() {
+          imageContext.clearRect(
+            gridSize,
+            gridSize,
+            gridSize * cols,
+            gridSize * rows,
+          );
+        }
+        if (image) {
+          const imageEl = new Image(); // Using optional size for image
+          imageEl.onload = drawImageActualSize; // Draw when image has loaded
+          imageEl.onerror = clearImage;
+          imageEl.src = image;
+        } else {
+          clearImage();
+        }
+      }
+    }
+  }, [image, imageContext, setImageContext]);
+
+  React.useEffect(() => {
+    const handleKeyDown = e => {
+      if (currentWall.length) {
+        if (currentWall.length > 1 && e.code === 'Enter') {
+          setWalls(s => [...s, currentWall]);
+          setCurrentWall([]);
+        } else if (e.code === 'Escape') {
+          setCurrentWall([]);
+        }
+      }
+      switch (e.keyCode) {
+        case 79: {
+          // o
+          toggleDoor('open-door')();
+          break;
+        }
+        case 83: {
+          // s
+          toggleDoor('secret-door')();
+          break;
+        }
+        case 68: {
+          // d
+          toggleDoor('door')();
+          break;
+        }
+        case 66: {
+          // b
+          toggleDoor('double-door')();
+          break;
+        }
+        default: {
+          return;
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  });
 
   const toggleDoor = name => {
     return () => setDoor(s => (s === name ? '' : name));
   };
+
   const handleClick = React.useCallback(
     e => {
       if (currentWall.length) {
@@ -101,128 +203,33 @@ function App() {
     ]);
   };
 
-  React.useEffect(() => {
-    const handleKeyDown = e => {
+  const handleMouseMove = e => {
+    const rect = gridRef.current.getBoundingClientRect();
+
+    let canvasOffsetLeft = rect.x;
+    let canvasOffsetTop = rect.y;
+    let _x = e.clientX - canvasOffsetLeft;
+    let _y = e.clientY - canvasOffsetTop;
+
+    [_x, _y] = getNearestPoint(_x, _y, gridSize);
+
+    const x = _x / gridSize;
+    const y = _y / gridSize;
+    if (x >= 0 && x <= Number(cols) + 1 && y >= 0 && y <= Number(rows) + 1) {
+      renderCanvas();
       if (currentWall.length) {
-        if (currentWall.length > 1 && e.code === 'Enter') {
-          setWalls(s => [...s, currentWall]);
-          setCurrentWall([]);
-        } else if (e.code === 'Escape') {
-          setCurrentWall([]);
-        }
+        renderInProgressWall(x, y);
+      } else {
+        gridCanvas.addDot(x, y);
       }
-      switch (e.keyCode) {
-        case 79: {
-          // o
-          toggleDoor('open-door')();
-          break;
-        }
-        case 83: {
-          // s
-          toggleDoor('secret-door')();
-          break;
-        }
-        case 68: {
-          // d
-          toggleDoor('door')();
-          break;
-        }
-        case 66: {
-          // b
-          toggleDoor('double-door')();
-          break;
-        }
-        default: {
-          return;
-        }
-      }
-    };
-
-    document.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('keydown', handleKeyDown);
-    };
-  });
-
-  React.useEffect(() => {
-    if (imageRef.current) {
-
-
-      const renderCtx = imageRef.current.getContext('2d');
-
-      if (renderCtx && !imageContext) {
-        setImageContext(renderCtx);
-      }
-      
-      if (imageContext) {
-        function drawImageActualSize() {
-          imageContext.drawImage(this, gridSize, gridSize, gridSize * cols, gridSize * rows);
-        }
-        function clearImage() {
-          imageContext.clearRect(gridSize, gridSize, gridSize * cols, gridSize * rows);
-        }
-        if (image) {
-          const imageEl = new Image(); // Using optional size for image
-          imageEl.onload = drawImageActualSize; // Draw when image has loaded
-          imageEl.onerror = clearImage;
-          imageEl.src = image;
-        } else {
-          clearImage()
-        }
-      }
+      dotRef.current = { x, y, icon: door };
     }
+  };
 
-  }, [image, imageContext, setImageContext])
+  const handleMouseOut = () => {
+    renderCanvas();
+  };
 
-  React.useEffect(() => {
-    if (gridRef.current) {
-      const renderCtx = gridRef.current.getContext('2d');
-
-      if (renderCtx && !context) {
-        setContext(renderCtx);
-      }
-    }
-
-    const handleMouseOver = e => {
-      const rect = gridRef.current.getBoundingClientRect();
-
-      let canvasOffsetLeft = rect.x;
-      let canvasOffsetTop = rect.y;
-      let _x = e.clientX - canvasOffsetLeft;
-      let _y = e.clientY - canvasOffsetTop;
-
-      [_x, _y] = getNearestPoint(_x, _y, gridSize);
-
-      const x = _x / gridSize;
-      const y = _y / gridSize;
-      if (x >= 0 && x <= Number(cols) + 1 && y >= 0 && y <= Number(rows) + 1) {
-        renderCanvas();
-        if (currentWall.length) {
-          renderInProgressWall(x, y);
-        } else {
-          gridCanvas.addDot(x, y);
-        }
-        dotRef.current = { x, y, icon: door };
-      }
-    };
-
-    const mouseOut = () => {
-      renderCanvas();
-    };
-
-    if (context) {
-      gridRef.current.addEventListener('mouseleave', mouseOut);
-      gridRef.current.addEventListener('mousemove', handleMouseOver);
-      gridRef.current.addEventListener('click', handleClick);
-      renderCanvas();
-    }
-    const canvas = gridRef.current;
-    return () => {
-      canvas.removeEventListener('mousemove', handleMouseOver);
-      canvas.removeEventListener('click', handleClick);
-      canvas.removeEventListener('mouseleave', mouseOut);
-    };
-  });
   const getButtonStyle = n => {
     return {
       backgroundColor: n === door ? 'lightgreen' : '',
@@ -246,23 +253,21 @@ function App() {
               className="link"
               target="_blank"
               rel="noopener noreferrer"
-              href={`https://otfbm.io/${cols}x${rows}${image ? '/@dc60' : ''}/${renderWallString(
-                walls,
-                gridSize,
-                xAxis,
-                image
-              )}`}
+              href={`https://otfbm.io/${cols}x${rows}${
+                image ? '/@dc60' : ''
+              }/${renderWallString(walls, gridSize, xAxis, image)}`}
             >
               Open in OTFBM
             </a>
           ) : null}
         </div>
-        <div 
+        <div
           style={{
-            width:gridSize * cols + gridSize * 2,
-            height:gridSize * rows + gridSize * 2
+            width: gridSize * cols + gridSize * 2,
+            height: gridSize * rows + gridSize * 2,
           }}
-          className="canvas-container">
+          className="canvas-container"
+        >
           <canvas
             id="canvas"
             ref={gridRef}
@@ -271,6 +276,9 @@ function App() {
             style={{
               marginTop: 10,
             }}
+            onClick={handleClick}
+            onMouseMove={handleMouseMove}
+            onMouseOut={handleMouseOut}
           ></canvas>
           <canvas
             id="image-canvas"
@@ -367,7 +375,12 @@ function App() {
           urlparams:{' '}
           {currentWall.length || walls.length ? (
             <>
-              {renderWallString([...walls, currentWall], gridSize, xAxis, image)}{' '}
+              {renderWallString(
+                [...walls, currentWall],
+                gridSize,
+                xAxis,
+                image,
+              )}{' '}
               <button
                 onClick={e => {
                   var textField = document.createElement('textarea');
