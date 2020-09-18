@@ -4,7 +4,7 @@
 
 ## Drawing maps the clicky way!
 
-I found drawing map walls with coords and flags for doors a touch slow for my tastes. Canvas grid maps to the same system as https://otfbm.io and uses the same wall rendering code. This means that you can quickly throw up some walls and then click the provided link to open and use the map as in image in all its glory!
+I found drawing map walls with coords and flags for doors a touch slow for my tastes. Canvas grid maps to the same system as https://otfbm.io and uses the same wall rendering code. This means that you can quickly throw up some walls and then click the provided link to open and use the map image in all its glory!
 
 Also there is some work started for importing maps in avrae bot with a provided otfbm url. Basically fast click to create and then import into your discord battles! "Soon"™
 
