@@ -82,6 +82,7 @@ export const ToggleViewModeBtn = () => {
 
   return (
     <button
+      name={`${modeMachine(mode)} mode`}
       className={classnames('toggle-mode-button', {
         light: mode === 'light',
         dark: mode === 'dark',

@@ -205,6 +205,7 @@ function App() {
           }}
         >
           <Button
+            name="Reset"
             onClick={() => {
               setWalls([]);
               setCurrentWall([]);
@@ -216,21 +217,26 @@ function App() {
             Reset
           </Button>
           <Button
+            name="open door"
             active={isActive('open-door')}
             onClick={toggleDoor('open-door')}
           >
             -o open door
           </Button>
-          <Button onClick={toggleDoor('door')} active={isActive('door')}>
+          <Button 
+            name="door"
+            onClick={toggleDoor('door')} active={isActive('door')}>
             -d closed door
           </Button>
           <Button
+            name="double door"
             active={isActive('double-door')}
             onClick={toggleDoor('double-door')}
           >
             -b double door
           </Button>
           <Button
+            name="secret door"
             active={isActive('secret-door')}
             onClick={toggleDoor('secret-door')}
           >
@@ -246,24 +252,27 @@ function App() {
             padding: '8px',
           }}
         >
-          <label>Cols:</label>
+          <label htmlFor="cols">Cols:</label>
           <input
+            id="cols"
             type="number"
             value={cols}
             onChange={(e) => {
               setCols(Number(e.target.value));
             }}
           />
-          <label>Rows:</label>
+          <label htmlFor="rows">Rows:</label>
           <input
+            id="rows"
             type="number"
             value={rows}
             onChange={(e) => {
               setRows(Number(e.target.value));
             }}
           />
-          <label>ImageUrl:</label>
+          <label htmlFor="image-url">ImageUrl:</label>
           <input
+            id="image-url"
             type="text"
             value={image}
             onChange={(e) => {
@@ -290,6 +299,7 @@ function App() {
                 image,
               )}{' '}
               <Button
+                name="Copy String"
                 onClick={(e) => {
                   var textField = document.createElement('textarea');
                   textField.innerText = renderWallString(
