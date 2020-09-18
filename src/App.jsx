@@ -172,9 +172,12 @@ function App() {
             <Line
               points={pointer.x ? [...currentWall, pointer] : currentWall}
               gridSize={gridSize}
+              bg={image}
             />
             {walls.map((points, i) => (
-              <Line key={i} points={points} gridSize={gridSize} />
+              <Line key={i} points={points} gridSize={gridSize} 
+                bg={image}
+              />
             ))}
           </Canvas>
           <Canvas
