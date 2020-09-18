@@ -1,25 +1,23 @@
 import * as React from 'react';
 import { useCanvas } from './Canvas';
-import {ID} from '../../util'
+import {ID} from '../../util';
+import {Line as LineRenderer} from '../../util/line';
 
-export const Dot = ({ x, y, gridSize }) => {
+export const Line = ({ points, gridSize }) => {
   const idRef = React.useRef(ID());
   const { registerNode, removeNode } = useCanvas();
 
   function draw(ctx) {
-    ctx.beginPath();
-    ctx.fillStyle = '#ff7f50';
-    ctx.arc(x * gridSize, y * gridSize, 3, 0, Math.PI * 2, true);
-    ctx.fill();
-    ctx.fillStyle = '#000';
-    ctx.closePath();
+    if (points.length) {
+      const line = new LineRenderer([...points], '#07031a', '#f4f6ff');
+      line.draw(ctx, gridSize)
+    }
   }
 
   React.useEffect(() => {
     if (registerNode) {
       registerNode(idRef.current, draw);
     }
-
     return () => removeNode(idRef.current)
   });
 

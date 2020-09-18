@@ -1,72 +1,24 @@
 import * as React from 'react';
-import { Details, DetailItem } from './details';
-import canvasFactory, { getColName } from './canvas';
+import { Details, DetailItem } from './components/Details';
+import { Canvas, Grid, Dot, Line, XAxis, YAxis } from './components/canvas';
+import {getNearestPoint, getColName, renderWallString} from './util'
 
-const round = (n, step) => Math.round(n / step) * step;
-const getNearestPoint = (x, y, gridSize) => {
-  return [round(x, gridSize), round(y, gridSize)];
-};
-
-const renderWallString = (walls, step, xAxis, image) => {
-  if (walls.length < 1) return;
-  const doorKeys = {
-    'secret-door': '-s',
-    door: '-d',
-    'double-door': '-b',
-    'open-door': '-o',
-  };
-  const wallString = walls
-    .map(wall => {
-      return wall.length
-        ? `_${wall
-            .map(({ x, y, icon }) => {
-              const xLetter = xAxis[x - 1];
-              return `${icon ? doorKeys[icon] : ''}${xLetter}${y}`;
-            })
-            .join('')}`
-        : '';
-    })
-    .join('');
-
-  return image ? wallString + `?bg=${image}` : wallString;
-};
 
 const gridSize = 40;
 function App() {
-  const gridRef = React.useRef();
-  const dotRef = React.useRef();
+  const canvasRef = React.useRef();
   const imageRef = React.useRef();
+  const [pointer, setPointer] = React.useState({x: 0, y: 0, icon: ''})
   const [cols, setCols] = React.useState(26);
   const [rows, setRows] = React.useState(14);
-  const [door, setDoor] = React.useState('');
+  const [icon, setIcon] = React.useState('');
   const [image, setImage] = React.useState('');
   const [context, setContext] = React.useState();
   const [imageContext, setImageContext] = React.useState();
   const [walls, setWalls] = React.useState([]);
   const [currentWall, setCurrentWall] = React.useState([]);
 
-  const gridCanvas = canvasFactory(
-    context,
-    gridSize,
-    Number(cols),
-    Number(rows),
-    image,
-  );
   const xAxis = [...Array(Number(cols))].map((_, i) => getColName(i));
-
-  React.useEffect(() => {
-    if (gridRef.current) {
-      const renderCtx = gridRef.current.getContext('2d');
-
-      if (renderCtx && !context) {
-        setContext(renderCtx);
-      }
-    }
-
-    if (context) {
-      renderCanvas();
-    }
-  });
 
   React.useEffect(() => {
     if (imageRef.current) {
@@ -107,10 +59,10 @@ function App() {
   }, [image, imageContext, setImageContext]);
 
   React.useEffect(() => {
-    const handleKeyDown = e => {
+    const handleKeyDown = (e) => {
       if (currentWall.length) {
         if (currentWall.length > 1 && e.code === 'Enter') {
-          setWalls(s => [...s, currentWall]);
+          setWalls((s) => [...s, currentWall]);
           setCurrentWall([]);
         } else if (e.code === 'Escape') {
           setCurrentWall([]);
@@ -149,35 +101,12 @@ function App() {
     };
   });
 
-  const toggleDoor = name => {
-    return () => setDoor(s => (s === name ? '' : name));
+  const toggleDoor = (name) => {
+    return () => setIcon((s) => (s === name ? '' : name));
   };
 
   const handleClick = React.useCallback(
-    e => {
-      if (currentWall.length) {
-        setCurrentWall(s => [...s, dotRef.current]);
-        setDoor('');
-      } else {
-        setCurrentWall(s => [...s, dotRef.current]);
-      }
-    },
-    [setCurrentWall, currentWall],
-  );
-
-  const renderCanvas = React.useCallback(() => {
-    gridRef.current.height = rows * gridSize + 80;
-    gridRef.current.width = cols * gridSize + 80;
-    gridCanvas.clearCanvas(gridRef.current.height, gridRef.current.width);
-    context.strokeRect(gridSize, gridSize, cols * gridSize, rows * gridSize);
-    context.font = '14px sans-serif';
-    gridCanvas.drawXAxis();
-    gridCanvas.drawYAxis();
-    gridCanvas.drawGrid();
-    if (currentWall.length) {
-      context.strokeStyle = 'red';
-      gridCanvas.drawWall(currentWall);
-
+    (e) => {
       if (currentWall.length > 3) {
         // triangle 4 clicks to close
         let { x: x1, y: y1 } = currentWall[0];
@@ -187,25 +116,27 @@ function App() {
           setWalls(s => [...s, currentWall]);
           setCurrentWall([]);
         }
+      } else {
+        setCurrentWall((s) => [...s, pointer]);
       }
-    }
-    if (walls.length) {
-      context.strokeStyle = 'black';
-      gridCanvas.drawWalls(walls);
-    }
-  }, [context, walls, rows, cols, currentWall]);
+      
+      setIcon('');
+    },
+    [setCurrentWall, currentWall, pointer],
+  );
 
-  const renderInProgressWall = (x, y) => {
-    context.strokeStyle = 'red';
-    gridCanvas.drawWall([
-      currentWall[currentWall.length - 1],
-      { x, y, icon: door },
-    ]);
+  const handleMouseOut = () => {
+    setPointer({})
   };
 
-  const handleMouseMove = e => {
-    const rect = gridRef.current.getBoundingClientRect();
+  const getButtonStyle = (n) => {
+    return {
+      backgroundColor: n === icon ? 'lightgreen' : '',
+    };
+  };
 
+  const handleMouseMove = (e) => {
+    const rect = canvasRef.current.getBoundingClientRect();
     let canvasOffsetLeft = rect.x;
     let canvasOffsetTop = rect.y;
     let _x = e.clientX - canvasOffsetLeft;
@@ -215,27 +146,10 @@ function App() {
 
     const x = _x / gridSize;
     const y = _y / gridSize;
-    if (x >= 0 && x <= Number(cols) + 1 && y >= 0 && y <= Number(rows) + 1) {
-      renderCanvas();
-      if (currentWall.length) {
-        renderInProgressWall(x, y);
-      } else {
-        gridCanvas.addDot(x, y);
-      }
-      dotRef.current = { x, y, icon: door };
+    if (x > 0 && x <= Number(cols) + 1 && y > 0 && y <= Number(rows) + 1) {
+      setPointer({x, y, icon: currentWall.length ? icon: ''});
     }
-  };
-
-  const handleMouseOut = () => {
-    renderCanvas();
-  };
-
-  const getButtonStyle = n => {
-    return {
-      backgroundColor: n === door ? 'lightgreen' : '',
-    };
-  };
-
+  }
   return (
     <div
       style={{
@@ -268,18 +182,27 @@ function App() {
           }}
           className="canvas-container"
         >
-          <canvas
-            id="canvas"
-            ref={gridRef}
-            width={gridSize * cols + gridSize * 2}
-            height={gridSize * rows + gridSize * 2}
-            style={{
-              marginTop: 10,
-            }}
-            onClick={handleClick}
-            onMouseMove={handleMouseMove}
-            onMouseOut={handleMouseOut}
-          ></canvas>
+      <Canvas
+        id="canvas"
+        ref={canvasRef}
+        width={gridSize * cols + gridSize * 2}
+        height={gridSize * rows + gridSize * 2}
+        style={{
+          marginTop: 10,
+        }}
+        onMouseMove={handleMouseMove}
+        onClick={handleClick}
+        onMouseOut={handleMouseOut}
+      >
+        <XAxis cols={cols} gridSize={gridSize}/>
+        <YAxis rows={rows} gridSize={gridSize}/>
+        <Grid rows={rows} cols={cols} gridSize={gridSize} />
+        <Dot x={pointer.x} y={pointer.y} gridSize={gridSize} />
+        <Line points={pointer.x ? [...currentWall, pointer] : currentWall} gridSize={gridSize}/>
+        {
+          walls.map((points, i) => <Line key={i} points={points} gridSize={gridSize}/>)
+        }
+      </Canvas>
           <canvas
             id="image-canvas"
             ref={imageRef}
@@ -303,8 +226,9 @@ function App() {
             onClick={() => {
               setWalls([]);
               setCurrentWall([]);
-              setDoor('');
+              setIcon('');
               setImage('');
+              setPointer({});
             }}
           >
             Reset
@@ -343,7 +267,7 @@ function App() {
           <input
             type="number"
             value={cols}
-            onChange={e => {
+            onChange={(e) => {
               setCols(Number(e.target.value));
             }}
           />
@@ -351,7 +275,7 @@ function App() {
           <input
             type="number"
             value={rows}
-            onChange={e => {
+            onChange={(e) => {
               setRows(Number(e.target.value));
             }}
           />
@@ -359,7 +283,7 @@ function App() {
           <input
             type="text"
             value={image}
-            onChange={e => {
+            onChange={(e) => {
               setImage(e.target.value);
             }}
           />
@@ -382,7 +306,7 @@ function App() {
                 image,
               )}{' '}
               <button
-                onClick={e => {
+                onClick={(e) => {
                   var textField = document.createElement('textarea');
                   textField.innerText = renderWallString(
                     [...walls, currentWall],

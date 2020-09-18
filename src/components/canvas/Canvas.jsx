@@ -1,9 +1,35 @@
 import * as React from 'react';
 
-const CanvasContext = React.createContext(null);
+const CanvasContext = React.createContext({
+  registerElement: () => {},
+  scheduleRender: () => {},
+});
 
 export const Canvas = React.forwardRef(({ children, ...props }, ref) => {
   const [ctx, setCtx] = React.useState();
+  const nodes = React.useRef({});
+
+  const registerNode = (id, fn) => {
+    nodes.current[id] = fn;
+    drawFn();
+  };
+
+  const removeNode = (id) => {
+    delete nodes.current[id]
+    drawFn();
+  }
+
+  const drawFn = () => {
+    if (ctx) {
+      ctx.clearRect(0, 0, props.width, props.height);
+      Object.keys(nodes.current).forEach((k) => {
+        const draw = nodes.current[k];
+        ctx.save();
+        draw(ctx);
+        ctx.restore();
+      });
+    }
+  };
 
   React.useEffect(() => {
     const node = ref.current;
@@ -14,13 +40,10 @@ export const Canvas = React.forwardRef(({ children, ...props }, ref) => {
         setCtx(renderCtx);
       }
     }
-    if (ctx) {
-      ctx.clearRect(0, 0, props.width, props.height);
-    }
   }, [ctx, setCtx]);
 
   return (
-    <CanvasContext.Provider value={ctx}>
+    <CanvasContext.Provider value={{ registerNode, removeNode }}>
       <canvas ref={ref} {...props}>
         {children}
       </canvas>

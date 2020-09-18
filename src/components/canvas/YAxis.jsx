@@ -1,25 +1,23 @@
 import * as React from 'react';
 import { useCanvas } from './Canvas';
-import {ID} from '../../util'
+import {ID, getColName} from '../../util';
 
-export const Dot = ({ x, y, gridSize }) => {
+export const YAxis = ({ rows, gridSize }) => {
   const idRef = React.useRef(ID());
   const { registerNode, removeNode } = useCanvas();
 
   function draw(ctx) {
-    ctx.beginPath();
-    ctx.fillStyle = '#ff7f50';
-    ctx.arc(x * gridSize, y * gridSize, 3, 0, Math.PI * 2, true);
-    ctx.fill();
-    ctx.fillStyle = '#000';
-    ctx.closePath();
+      ctx.font = '16px sans-serif';
+      ctx.textAlign = 'center';
+      for (let i = 0; i < rows; i++) {
+        ctx.fillText(i + 1, gridSize / 2, gridSize + 25 + gridSize * i);
+      }
   }
 
   React.useEffect(() => {
     if (registerNode) {
       registerNode(idRef.current, draw);
     }
-
     return () => removeNode(idRef.current)
   });
 

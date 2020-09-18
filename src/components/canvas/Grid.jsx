@@ -1,18 +1,19 @@
 import * as React from 'react';
 import { useCanvas } from './Canvas';
+import {ID} from '../../util'
 
 export const Grid = ({ rows, cols, gridSize }) => {
-  const ctx = useCanvas();
-
-  function drawLine(start, end) {
-    const [x, y] = start;
-    const [x1, y1] = end;
-    ctx.beginPath();
-    ctx.moveTo(x, y);
-    ctx.lineTo(x1, y1);
-    ctx.stroke();
-  }
-  function drawGrid() {
+  const idRef = React.useRef(ID());
+  const { registerNode, removeNode } = useCanvas();
+  function draw(ctx) {
+    function drawLine(start, end) {
+      const [x, y] = start;
+      const [x1, y1] = end;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.lineTo(x1, y1);
+      ctx.stroke();
+    }
     rows = Number(rows);
     cols = Number(cols);
     ctx.strokeStyle = 'grey';
@@ -26,14 +27,11 @@ export const Grid = ({ rows, cols, gridSize }) => {
   }
 
   React.useEffect(() => {
-    if (ctx) {
-      ctx.save();
-      drawGrid();
-      //logic here
-
-      ctx.restore();
+    if (registerNode) {
+      registerNode(idRef.current, draw);
     }
-  });
+    return () => removeNode(idRef.current)
+  }, [registerNode]);
 
   return null;
 };
