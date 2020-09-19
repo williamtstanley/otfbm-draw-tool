@@ -139,11 +139,22 @@ function App() {
 
   return (
     <div className="app-container">
-      <ToggleViewModeBtn />
-      <h1>OTFBM Draw Tool</h1>
+      <header className="app-header">
+        <Details>
+          <DetailItem>Click on the grid to add walls</DetailItem>
+          <DetailItem>Hit escape to cancel an in progress wall</DetailItem>
+          <DetailItem>Hit enter to save/confirm an in progress wall</DetailItem>
+          <DetailItem>
+            Copy button quick copies the generated paramstring to your clipboard
+          </DetailItem>
+          <DetailItem>Door hotkeys (o, d, b, s)</DetailItem>
+        </Details>
+        <h1>OTFBM Draw Tool</h1>
+        <ToggleViewModeBtn />
+      </header>
       <div>
         <div className="zoom-controls">
-          <Button onClick={() => setZoom((z) => (z > 1 ? z - 1 : 1))}>
+          <Button onClick={() => setZoom((z) => (z > 1 ? z - 0.5 : 1))}>
             Zoom In
           </Button>
           {walls.length ? (
@@ -158,7 +169,7 @@ function App() {
               Open in OTFBM
             </a>
           ) : null}
-          <Button onClick={() => setZoom((z) => z + 1)}>Zoom Out</Button>
+          <Button onClick={() => setZoom((z) => z + 0.5)}>Zoom Out</Button>
         </div>
         <div
           style={{
@@ -208,14 +219,7 @@ function App() {
             />
           </Canvas>
         </div>
-        <div
-          style={{
-            paddingBottom: '15px',
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '8px',
-          }}
-        >
+        <div className="grid-controls">
           <Button
             onClick={() => {
               setWalls([]);
@@ -254,15 +258,7 @@ function App() {
             -s secret door
           </Button>
         </div>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: '8px',
-            padding: '8px',
-          }}
-        >
+        <div className="grid-inputs">
           <label htmlFor="cols">Cols:</label>
           <input
             id="cols"
@@ -291,55 +287,36 @@ function App() {
             }}
           />
         </div>
-        <div
-          style={{
-            padding: '16px',
-            textAlign: 'left',
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-          }}
-        >
+        <div className="output-controls">
           urlparams:{' '}
-          {currentWall.length || walls.length ? (
-            <>
-              {renderWallString(
-                [...walls, currentWall],
-                gridSize / zoom,
-                xAxis,
-                image,
-              )}{' '}
-              <Button
-                name="Copy String"
-                onClick={(e) => {
-                  var textField = document.createElement('textarea');
-                  textField.innerText = renderWallString(
-                    [...walls, currentWall],
-                    gridSize / zoom,
-                    xAxis,
-                  );
-                  document.body.appendChild(textField);
-                  textField.select();
-                  document.execCommand('copy');
-                  textField.remove();
-                  alert('wall string copied!');
-                }}
-              >
-                Copy
-              </Button>
-            </>
-          ) : null}
+          <>
+            {renderWallString(
+              [...walls, currentWall],
+              gridSize / zoom,
+              xAxis,
+              image,
+            )}{' '}
+            <Button
+              name="Copy String"
+              onClick={(e) => {
+                var textField = document.createElement('textarea');
+                textField.innerText = renderWallString(
+                  [...walls, currentWall],
+                  gridSize / zoom,
+                  xAxis,
+                );
+                document.body.appendChild(textField);
+                textField.select();
+                document.execCommand('copy');
+                textField.remove();
+                alert('wall string copied!');
+              }}
+            >
+              Copy
+            </Button>
+          </>
         </div>
       </div>
-      <Details>
-        <DetailItem>Click on the grid to add walls</DetailItem>
-        <DetailItem>Hit escape to cancel an in progress wall</DetailItem>
-        <DetailItem>Hit enter to save/confirm an in progress wall</DetailItem>
-        <DetailItem>
-          Copy button quick copies the generated paramstring to your clipboard
-        </DetailItem>
-        <DetailItem>Door hotkeys (o, d, b, s)</DetailItem>
-      </Details>
     </div>
   );
 }

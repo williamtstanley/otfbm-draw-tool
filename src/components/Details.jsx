@@ -1,5 +1,5 @@
 import * as React from 'react';
-import classnames from "classnames";
+import classnames from 'classnames';
 
 function QuestionCircleIcon(props) {
   return (
@@ -21,14 +21,18 @@ export const Details = ({ children }) => {
   const [closed, setClosed] = React.useState(true);
 
   const toggleClosed = React.useCallback(() => {
-    setClosed(s => !s);
-  }, [setClosed])
-  return ( 
+    setClosed((s) => !s);
+  }, [setClosed]);
+  return (
     <div className="details">
-      <button 
+      <button
         onClick={toggleClosed}
-        aria-label="open details" className={classnames("details-info-btn", {closed})}><QuestionCircleIcon/></button>
-      <ul className={classnames("details-list", {closed})}>{children}</ul>
+        aria-label="open details"
+        className={classnames('details-info-btn', { closed })}
+      >
+        <QuestionCircleIcon />
+      </button>
+      <ul className={classnames('details-list', { closed })}>{children}</ul>
     </div>
   );
 };
