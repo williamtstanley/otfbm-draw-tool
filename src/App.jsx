@@ -14,11 +14,11 @@ import { Button } from './components/Button';
 import { getNearestPoint, getColName, renderWallString } from './util';
 
 const gridSize = 40;
-// const zoom = 1; // start zooming out after X amount of size increase
 function App() {
   const canvasRef = React.useRef();
   const imageRef = React.useRef();
   const [pointer, setPointer] = React.useState({ x: 0, y: 0, icon: '' });
+  const [zoom, setZoom] = React.useState(1);
   const [cols, setCols] = React.useState(26);
   const [rows, setRows] = React.useState(14);
   const [icon, setIcon] = React.useState('');
@@ -27,6 +27,11 @@ function App() {
   const [currentWall, setCurrentWall] = React.useState([]);
 
   const xAxis = [...Array(Number(cols))].map((_, i) => getColName(i));
+
+  const calcDims = (n) => {
+    const calculatedGridSize = gridSize / zoom;
+    return calculatedGridSize * n + calculatedGridSize * 2;
+  };
 
   React.useEffect(() => {
     const handleKeyDown = (e) => {
@@ -114,15 +119,15 @@ function App() {
       let _x = e.clientX - canvasOffsetLeft;
       let _y = e.clientY - canvasOffsetTop;
 
-      [_x, _y] = getNearestPoint(_x, _y, gridSize);
+      [_x, _y] = getNearestPoint(_x, _y, gridSize / zoom);
 
-      const x = _x / gridSize;
-      const y = _y / gridSize;
+      const x = _x / (gridSize / zoom);
+      const y = _y / (gridSize / zoom);
       if (x > 0 && x <= Number(cols) + 1 && y > 0 && y <= Number(rows) + 1) {
         setPointer({ x, y, icon });
       }
     },
-    [setPointer, icon, gridSize, cols, rows],
+    [setPointer, icon, gridSize, zoom, cols, rows],
   );
 
   const isActive = React.useCallback(
@@ -133,18 +138,14 @@ function App() {
   );
 
   return (
-    <div
-      style={{
-        textAlign: 'center',
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-      }}
-    >
+    <div className="app-container">
       <ToggleViewModeBtn />
       <h1>OTFBM Draw Tool</h1>
       <div>
-        <div style={{ minHeight: '30px' }}>
+        <div className="zoom-controls">
+          <Button onClick={() => setZoom((z) => (z > 1 ? z - 1 : 1))}>
+            Zoom In
+          </Button>
           {walls.length ? (
             <a
               className="link"
@@ -152,48 +153,59 @@ function App() {
               rel="noopener noreferrer"
               href={`https://otfbm.io/${cols}x${rows}${
                 image ? '/@c60' : ''
-              }/${renderWallString(walls, gridSize, xAxis, image)}`}
+              }/${renderWallString(walls, gridSize / zoom, xAxis, image)}`}
             >
               Open in OTFBM
             </a>
           ) : null}
+          <Button onClick={() => setZoom((z) => z + 1)}>Zoom Out</Button>
         </div>
         <div
           style={{
-            width: gridSize * cols + gridSize * 2,
-            height: gridSize * rows + gridSize * 2,
+            width: calcDims(cols),
+            height: calcDims(rows),
           }}
           className="canvas-container"
         >
           <Canvas
             id="canvas"
             ref={canvasRef}
-            width={gridSize * cols + gridSize * 2}
-            height={gridSize * rows + gridSize * 2}
+            width={calcDims(cols)}
+            height={calcDims(rows)}
             onMouseMove={handleMouseMove}
             onClick={handleClick}
             onMouseOut={handleMouseOut}
           >
-            <XAxis cols={cols} gridSize={gridSize} />
-            <YAxis rows={rows} gridSize={gridSize} />
-            <Grid rows={rows} cols={cols} gridSize={gridSize} />
-            <Dot x={pointer.x} y={pointer.y} gridSize={gridSize} />
+            <XAxis cols={cols} gridSize={gridSize / zoom} />
+            <YAxis rows={rows} gridSize={gridSize / zoom} />
+            <Grid rows={rows} cols={cols} gridSize={gridSize / zoom} />
+            <Dot x={pointer.x} y={pointer.y} gridSize={gridSize / zoom} />
             <Line
               points={[...currentWall, pointer]}
-              gridSize={gridSize}
+              gridSize={gridSize / zoom}
               bg={image}
             />
             {walls.map((points, i) => (
-              <Line key={i} points={points} gridSize={gridSize} bg={image} />
+              <Line
+                key={i}
+                points={points}
+                gridSize={gridSize / zoom}
+                bg={image}
+              />
             ))}
           </Canvas>
           <Canvas
+            width={calcDims(cols)}
+            height={calcDims(rows)}
             id="image-canvas"
             ref={imageRef}
-            width={gridSize * cols + gridSize * 2}
-            height={gridSize * rows + gridSize * 2}
           >
-            <Image image={image} rows={rows} cols={cols} gridSize={gridSize} />
+            <Image
+              image={image}
+              rows={rows}
+              cols={cols}
+              gridSize={gridSize / zoom}
+            />
           </Canvas>
         </div>
         <div
@@ -211,6 +223,7 @@ function App() {
               setIcon('');
               setImage('');
               setPointer({});
+              setZoom(1);
             }}
           >
             Reset
@@ -292,7 +305,7 @@ function App() {
             <>
               {renderWallString(
                 [...walls, currentWall],
-                gridSize,
+                gridSize / zoom,
                 xAxis,
                 image,
               )}{' '}
@@ -302,7 +315,7 @@ function App() {
                   var textField = document.createElement('textarea');
                   textField.innerText = renderWallString(
                     [...walls, currentWall],
-                    gridSize,
+                    gridSize / zoom,
                     xAxis,
                   );
                   document.body.appendChild(textField);

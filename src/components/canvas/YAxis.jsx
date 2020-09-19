@@ -8,10 +8,15 @@ export const YAxis = ({ rows, gridSize }) => {
 
   React.useEffect(() => {
     function draw(ctx) {
-      ctx.font = '16px sans-serif';
+      const px = Math.round(gridSize / 2.5);
+      ctx.font = `${px}px sans-serif`;
       ctx.textAlign = 'center';
       for (let i = 0; i < rows; i++) {
-        ctx.fillText(i + 1, gridSize / 2, gridSize + 25 + gridSize * i);
+        ctx.fillText(
+          i + 1,
+          gridSize / 2,
+          gridSize + Math.round(gridSize / 1.6) + gridSize * i,
+        );
       }
     }
 

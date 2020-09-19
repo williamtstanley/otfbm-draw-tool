@@ -13,9 +13,11 @@ export const XAxis = ({ cols, gridSize }) => {
         const code = getColName(i);
         let offset = gridSize / 2;
         if (code.length > 1) {
-          ctx.font = '14px sans-serif';
+          const px = Math.round(gridSize / 2.85);
+          ctx.font = `${px}px sans-serif`;
         } else {
-          ctx.font = '16px sans-serif';
+          const px = Math.round(gridSize / 2.5);
+          ctx.font = `${px}px sans-serif`;
         }
         ctx.fillText(code, gridSize + offset + gridSize * i, gridSize / 2);
       }
