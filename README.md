@@ -8,6 +8,7 @@ I found drawing map walls with coords and flags for doors a touch slow for my ta
 
 Also there is some work started for importing maps in avrae bot with a provided otfbm url. Basically fast click to create and then import into your discord battles! "Soon"™
 
+Demo: https://otfbm-draw-tool.netlify.app/
 
 ## Available Scripts
 
